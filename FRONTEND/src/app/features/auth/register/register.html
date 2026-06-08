@@ -1,93 +1,133 @@
 <section class="register-page">
   <div class="register-card">
-    <h1>Employee Self Registration</h1>
-    <p class="subtitle">Create your employee account. Your request will be reviewed by an admin before activation.</p>
+    <aside class="register-intro">
+      <p class="eyebrow">Self Registration</p>
+      <h1>Employee Self Registration</h1>
+      <p class="subtitle">Create your employee account. Your request will be reviewed by an admin before activation.</p>
+      <div class="info-box">
+        <strong>Why this works well</strong>
+        <span>Clear desktop layout, aligned fields, and role-based sections for smoother onboarding.</span>
+      </div>
+    </aside>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-      <label>
-        Full name
-        <input formControlName="name" type="text" placeholder="Full Name" />
+    <section class="register-form-panel">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="register-form">
+      <div class="field-group">
+        <label>
+          Full name
+          <input formControlName="name" type="text" placeholder="Full Name" />
+        </label>
         <small class="error-text" *ngIf="fieldHasError('name')">{{ fieldErrorMessage('name') }}</small>
-      </label>
+      </div>
 
-      <label>
-        Email
-        <input formControlName="email" type="email" placeholder="email" />
-        <small class="error-text" *ngIf="fieldHasError('email')">{{ fieldErrorMessage('email') }}</small>
-      </label>
+      <div class="field-grid two-up">
+        <div class="field-group">
+          <label>
+            Email
+            <input formControlName="email" type="email" placeholder="email" />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('email')">{{ fieldErrorMessage('email') }}</small>
+        </div>
 
-      <label>
-        Phone
-        <input formControlName="phone" type="tel" placeholder="Mob No." />
-        <small class="error-text" *ngIf="fieldHasError('phone')">{{ fieldErrorMessage('phone') }}</small>
-      </label>
+        <div class="field-group">
+          <label>
+            Phone
+            <input formControlName="phone" type="tel" placeholder="Mob No." />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('phone')">{{ fieldErrorMessage('phone') }}</small>
+        </div>
+      </div>
 
-      <label>
-        Department
-        <input formControlName="department" type="text" placeholder="Cardiology,Dental,Ortho,etc. " />
-        <small class="error-text" *ngIf="fieldHasError('department')">{{ fieldErrorMessage('department') }}</small>
-      </label>
+      <div class="field-grid two-up">
+        <div class="field-group">
+          <label>
+            Department
+            <input formControlName="department" type="text" placeholder="Cardiology, Dental, Ortho" />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('department')">{{ fieldErrorMessage('department') }}</small>
+        </div>
 
-      <label>
-        Designation
-        <input formControlName="designation" type="text" placeholder="Designation" />
-        <small class="error-text" *ngIf="fieldHasError('designation')">{{ fieldErrorMessage('designation') }}</small>
-      </label>
+        <div class="field-group">
+          <label>
+            Designation
+            <input formControlName="designation" type="text" placeholder="Designation" />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('designation')">{{ fieldErrorMessage('designation') }}</small>
+        </div>
+      </div>
 
-      <label>
-        Role
-        <select formControlName="role">
-          <option value="RECEPTIONIST">Receptionist</option>
-          <option value="DOCTOR">Doctor</option>
-          <option value="NURSE">Nurse</option>
-          <option value="LAB_TECH">Lab Technician</option>
-          <option value="PHARMACIST">Pharmacist</option>
-          <option value="CASHIER">Cashier</option>
-          <option value="TECHNICIAN">Technician</option>
-        </select>
+      <div class="field-group">
+        <label>
+          Role
+          <select formControlName="role">
+            <option value="RECEPTIONIST">Receptionist</option>
+            <option value="DOCTOR">Doctor</option>
+            <option value="NURSE">Nurse</option>
+            <option value="LAB_TECH">Lab Technician</option>
+            <option value="PHARMACIST">Pharmacist</option>
+            <option value="CASHIER">Cashier</option>
+            <option value="TECHNICIAN">Technician</option>
+          </select>
+        </label>
         <small class="error-text" *ngIf="fieldHasError('role')">{{ fieldErrorMessage('role') }}</small>
-      </label>
+      </div>
 
-      <label>
-        Password
-        <input formControlName="password" type="password" placeholder="Minimum 6 characters" />
-        <small class="error-text" *ngIf="fieldHasError('password')">{{ fieldErrorMessage('password') }}</small>
-      </label>
+      <div class="field-grid two-up">
+        <div class="field-group">
+          <label>
+            Password
+            <input formControlName="password" type="password" placeholder="Minimum 6 characters" />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('password')">{{ fieldErrorMessage('password') }}</small>
+        </div>
 
-      <label>
-        Confirm password
-        <input formControlName="confirmPassword" type="password" placeholder="Re-enter password" />
-        <small class="error-text" *ngIf="fieldHasError('confirmPassword') || registerForm.errors?.['passwordMismatch']">{{ fieldErrorMessage('confirmPassword') || 'Passwords do not match.' }}</small>
-      </label>
+        <div class="field-group">
+          <label>
+            Confirm password
+            <input formControlName="confirmPassword" type="password" placeholder="Re-enter password" />
+          </label>
+          <small class="error-text" *ngIf="fieldHasError('confirmPassword') || registerForm.errors?.['passwordMismatch']">{{ fieldErrorMessage('confirmPassword') || 'Passwords do not match.' }}</small>
+        </div>
+      </div>
 
       <section class="doctor-fields" *ngIf="isDoctor || needsQualification">
         <h2>Role-specific details</h2>
-        <label *ngIf="isDoctor">
-          Medical registration number
-          <input formControlName="medicalRegistrationNo" type="text" placeholder="MRN" />
-          <small class="error-text" *ngIf="fieldHasError('medicalRegistrationNo')">{{ fieldErrorMessage('medicalRegistrationNo') }}</small>
-        </label>
+        <div class="field-grid two-up">
+          <div class="field-group" *ngIf="isDoctor">
+            <label>
+              Medical registration number
+              <input formControlName="medicalRegistrationNo" type="text" placeholder="MRN" />
+            </label>
+            <small class="error-text" *ngIf="fieldHasError('medicalRegistrationNo')">{{ fieldErrorMessage('medicalRegistrationNo') }}</small>
+          </div>
 
-        <label *ngIf="isDoctor">
-          Specialization
-          <input formControlName="specialization" type="text" placeholder="Cardiology" />
-          <small class="error-text" *ngIf="fieldHasError('specialization')">{{ fieldErrorMessage('specialization') }}</small>
-        </label>
+          <div class="field-group" *ngIf="isDoctor">
+            <label>
+              Specialization
+              <input formControlName="specialization" type="text" placeholder="Cardiology" />
+            </label>
+            <small class="error-text" *ngIf="fieldHasError('specialization')">{{ fieldErrorMessage('specialization') }}</small>
+          </div>
+        </div>
 
-        <label *ngIf="needsQualification">
-          Qualifications (comma separated)
-          <input formControlName="qualification" type="text" placeholder="MBBS, MD" />
+        <div class="field-group" *ngIf="needsQualification">
+          <label>
+            Qualifications (comma separated)
+            <input formControlName="qualification" type="text" placeholder="MBBS, MD" />
+          </label>
           <small class="error-text" *ngIf="fieldHasError('qualification')">{{ fieldErrorMessage('qualification') }}</small>
-        </label>
+        </div>
 
-        <label *ngIf="isDoctor">
-          Consultation fee
-          <input formControlName="consultationFee" type="number" min="0" placeholder="500" />
+        <div class="field-group" *ngIf="isDoctor">
+          <label>
+            Consultation fee
+            <input formControlName="consultationFee" type="number" min="0" placeholder="500" />
+          </label>
           <small class="error-text" *ngIf="fieldHasError('consultationFee')">{{ fieldErrorMessage('consultationFee') }}</small>
-        </label>
+        </div>
 
-        <div *ngIf="isDoctor">
-          <p>Availability slots</p>
+        <div class="field-group" *ngIf="isDoctor">
+          <p class="slot-label">Availability slots</p>
           <div class="slot-options">
             <label *ngFor="let slot of availabilitySlotOptions" class="slot-option">
               <input
@@ -102,10 +142,11 @@
         </div>
       </section>
 
-      <button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Submitting...' : 'Register' }}</button>
-    </form>
+        <button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Submitting...' : 'Register' }}</button>
+      </form>
 
-    <p class="status" [class.error]="statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('correct')">{{ statusMessage || 'Use this form to submit your employee registration request.' }}</p>
-    <p class="link-row"><a routerLink="/login">Already have an account? Login</a></p>
+      <p class="status" [class.error]="statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('correct') || statusMessage.toLowerCase().includes('already exists')">{{ statusMessage || 'Use this form to submit your employee registration request.' }}</p>
+      <p class="link-row"><a routerLink="/login">Already have an account? Login</a></p>
+    </section>
   </div>
 </section>
