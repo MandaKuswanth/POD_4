@@ -59,10 +59,8 @@ export class EmployeeList implements OnInit {
   searchText = '';
   selectedRole = 'ALL ROLES';
   selectedDepartment = 'ALL DEPARTMENTS';
-
+  //  activeView: 'active' | 'pending' = 'active';
   activeView: 'all' | 'active' | 'pending' = 'all';
-
-  expandedEmployee: any = null;
 
   displayedColumns: string[] = [
     'employeeCode',
@@ -80,26 +78,31 @@ export class EmployeeList implements OnInit {
   }
 
   get filteredEmployees(): any[] {
+
     let employees = [...this.employees];
 
     if (this.activeView === 'active') {
-      employees = employees.filter((emp) => emp.status === true);
-    } else if (this.activeView === 'pending') {
-      employees = employees.filter((emp) => emp.status === false);
+      employees = employees.filter(emp => emp.status === true);
+    }
+
+    else if (this.activeView === 'pending') {
+      employees = employees.filter(emp => emp.status === false);
     }
 
     if (this.selectedRole !== 'ALL ROLES') {
-      employees = employees.filter((emp) => emp.role === this.selectedRole);
+      employees = employees.filter(
+        emp => emp.role === this.selectedRole
+      );
     }
-
     if (this.selectedDepartment !== 'ALL DEPARTMENTS') {
       employees = employees.filter(
-        (emp) => emp.department === this.selectedDepartment
+        emp => emp.department === this.selectedDepartment
       );
     }
 
     if (this.searchText.trim()) {
-      const search = this.searchText.toLowerCase().trim();
+
+      const search = this.searchText.toLowerCase();
 
       employees = employees.filter((emp: any) =>
         emp.employeeCode?.toLowerCase().includes(search) ||
@@ -111,7 +114,6 @@ export class EmployeeList implements OnInit {
 
     return employees;
   }
-
   get activeCount(): number {
     return this.employees.filter((emp: any) => emp.status === true).length;
   }
@@ -119,7 +121,6 @@ export class EmployeeList implements OnInit {
   get pendingCount(): number {
     return this.employees.filter((emp: any) => emp.status === false).length;
   }
-
   get roles(): string[] {
     const roles = this.employees
       .map((emp: any) => emp.role)
@@ -127,48 +128,41 @@ export class EmployeeList implements OnInit {
 
     return ['ALL ROLES', ...new Set(roles)];
   }
-
   get departments(): string[] {
+
     const departments = this.employees
       .map((emp: any) => emp.department)
       .filter(Boolean);
 
     return ['ALL DEPARTMENTS', ...new Set(departments)];
   }
-
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
+
+    this.route.queryParams.subscribe(params => {
+
       if (params['view'] === 'active') {
+
         this.activeView = 'active';
+
       } else if (params['view'] === 'pending') {
+
         this.activeView = 'pending';
+
       } else {
+
         this.activeView = 'all';
+
       }
 
-      this.expandedEmployee = null;
-      this.cdr.markForCheck();
     });
 
     this.loadEmployees();
+
   }
 
   setView(view: 'all' | 'active' | 'pending'): void {
     this.activeView = view;
-    this.expandedEmployee = null;
-    this.cdr.markForCheck();
-  }
-
-  toggleRow(employee: any): void {
-    this.expandedEmployee =
-      this.expandedEmployee === employee ? null : employee;
-
-    this.cdr.markForCheck();
-  }
-
-  closeExpandedRow(): void {
-    this.expandedEmployee = null;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   loadEmployees(): void {
@@ -240,58 +234,67 @@ export class EmployeeList implements OnInit {
       return;
     }
 
-    const confirmed = confirm(
-      `Delete ${employee.name}? This cannot be undone.`
-    );
+    const isDoctor = employee.role === 'DOCTOR';
+
+    const message = isDoctor
+      ? `Delete Dr. ${employee.name}? Existing appointments with this doctor will be cancelled and patients will be notified by email.`
+      : `Delete ${employee.name}? This cannot be undone.`;
+
+    const confirmed = confirm(message);
 
     if (!confirmed) {
       return;
     }
 
     this.employeeService.deleteEmployee(employee.employeeCode).subscribe({
-      next: () => {
-        this.toastr.success('Employee deleted successfully');
-        this.expandedEmployee = null;
+      next: (response: any) => {
+        this.toastr.success(
+          response?.message || 'Employee deleted successfully'
+        );
+
         this.loadEmployees();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toastr.error(
           err?.error?.message || 'Failed to delete employee'
         );
-      },
+      }
     });
   }
 
   toggleEmployeeStatus(employee: any): void {
-    if (!employee?.employeeCode) {
-      this.toastr.error('Employee code missing');
-      return;
-    }
-
-    const action = employee.status ? 'deactivate' : 'activate';
-
-    const confirmed = confirm(
-      `Are you sure you want to ${action} ${employee.name}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.employeeService.toggleEmployeeStatus(employee.employeeCode).subscribe({
-      next: (response: any) => {
-        this.toastr.success(
-          response?.message || `Employee ${action}d successfully`
-        );
-
-        this.expandedEmployee = null;
-        this.loadEmployees();
-      },
-      error: (err) => {
-        this.toastr.error(
-          err?.error?.message || 'Failed to update employee status'
-        );
-      },
-    });
+  if (!employee?.employeeCode) {
+    this.toastr.error('Employee code missing');
+    return;
   }
+
+  const action = employee.status ? 'deactivate' : 'activate';
+  const isDoctor = employee.role === 'DOCTOR';
+
+  const message =
+    isDoctor && employee.status
+      ? `Deactivate Dr. ${employee.name}? Existing appointments with this doctor will be cancelled and patients will be notified by email.`
+      : `Are you sure you want to ${action} ${employee.name}?`;
+
+  const confirmed = confirm(message);
+
+  if (!confirmed) {
+    return;
+  }
+
+  this.employeeService.toggleEmployeeStatus(employee.employeeCode).subscribe({
+    next: (response: any) => {
+      this.toastr.success(
+        response?.message || `Employee ${action}d successfully`
+      );
+
+      this.loadEmployees();
+    },
+    error: (err: any) => {
+      this.toastr.error(
+        err?.error?.message || 'Failed to update employee status'
+      );
+    }
+  });
+}
 }

@@ -24,6 +24,10 @@ const appointmentSchema = new mongoose.Schema({
     },
     createdByEmployeeId: {
         type: String, trim: true
+    },
+    cancellationReason: {
+        type: String,
+        default: null
     }
 },
     {
