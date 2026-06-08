@@ -6,72 +6,70 @@
   <main class="content">
     <mat-card class="table-card">
 
+      <!-- PAGE HEADER -->
       <div class="page-header">
+        <h2 class="page-title">
+          Employee Management
+        </h2>
 
-<h2 class="page-title">
-  Employee Management
-</h2>
+        <div class="toolbar-row">
 
-<div class="toolbar-row">
+          <!-- SEARCH -->
+          <div class="search-container">
+            <input class="search-input" type="text" placeholder="Search by code, name, email or phone..."
+              [(ngModel)]="searchText" />
+          </div>
 
-  <div class="search-container">
-    <input
-      class="search-input"
-      type="text"
-      placeholder="Search by code, name, email or phone..."
-      [(ngModel)]="searchText">
-  </div>
+          <!-- ROLE FILTER -->
+          <div class="role-filter">
+            <select [(ngModel)]="selectedRole">
+              <option *ngFor="let role of roles" [value]="role">
+                {{ role }}
+              </option>
+            </select>
+          </div>
 
-  <div class="role-filter">
-    <select [(ngModel)]="selectedRole">
-      <option *ngFor="let role of roles" [value]="role">
-        {{ role }}
-      </option>
-    </select>
-  </div>
+          <!-- DEPARTMENT FILTER -->
+          <div class="department-filter">
+            <select [(ngModel)]="selectedDepartment">
+              <option *ngFor="let dept of departments" [value]="dept">
+                {{ dept }}
+              </option>
+            </select>
+          </div>
 
-  <div class="department-filter">
-    <select [(ngModel)]="selectedDepartment">
-      <option *ngFor="let dept of departments" [value]="dept">
-        {{ dept }}
-      </option>
-    </select>
-  </div>
+          <!-- HEADER ACTIONS -->
+          <div class="header-actions">
 
-  <div class="header-actions">
+            <button mat-stroked-button (click)="setView('all')">
+              All
+              <span class="badge-count">{{ employees.length }}</span>
+            </button>
 
-    <button mat-stroked-button (click)="setView('all')">
-      All
-      <span class="badge-count">{{ employees.length }}</span>
-    </button>
+            <button mat-stroked-button (click)="setView('active')">
+              Active
+              <span class="badge-count">{{ activeCount }}</span>
+            </button>
 
-    <button mat-stroked-button (click)="setView('active')">
-      Active
-      <span class="badge-count">{{ activeCount }}</span>
-    </button>
+            <button mat-stroked-button (click)="setView('pending')">
+              Pending
+              <span class="badge-count">{{ pendingCount }}</span>
+            </button>
 
-    <button mat-stroked-button (click)="setView('pending')">
-      Pending
-      <span class="badge-count">{{ pendingCount }}</span>
-    </button>
+            <button *ngIf="isAdmin" mat-fab color="primary" (click)="openAddDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
 
-    <button
-      *ngIf="isAdmin"
-      mat-fab
-      color="primary"
-      (click)="openAddDialog()">
-      <mat-icon>add</mat-icon>
-    </button>
-
-  </div>
-
-</div>
-        
+          </div>
+        </div>
       </div>
 
+      <!-- TABLE -->
       <div class="table-wrapper" *ngIf="filteredEmployees.length > 0; else noData">
-        <table mat-table [dataSource]="filteredEmployees" class="mat-elevation-z1">
 
+        <table mat-table [dataSource]="filteredEmployees" class="mat-elevation-z1" multiTemplateDataRows>
+
+          <!-- EMPLOYEE CODE -->
           <ng-container matColumnDef="employeeCode">
             <th mat-header-cell *matHeaderCellDef>Code</th>
             <td mat-cell *matCellDef="let emp">
@@ -79,6 +77,7 @@
             </td>
           </ng-container>
 
+          <!-- NAME -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
             <td mat-cell *matCellDef="let emp">
@@ -86,6 +85,7 @@
             </td>
           </ng-container>
 
+          <!-- EMAIL -->
           <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef>Email</th>
             <td mat-cell *matCellDef="let emp">
@@ -93,6 +93,7 @@
             </td>
           </ng-container>
 
+          <!-- PHONE -->
           <ng-container matColumnDef="phone">
             <th mat-header-cell *matHeaderCellDef>Phone</th>
             <td mat-cell *matCellDef="let emp">
@@ -100,6 +101,7 @@
             </td>
           </ng-container>
 
+          <!-- DEPARTMENT -->
           <ng-container matColumnDef="department">
             <th mat-header-cell *matHeaderCellDef>Department</th>
             <td mat-cell *matCellDef="let emp">
@@ -107,6 +109,7 @@
             </td>
           </ng-container>
 
+          <!-- DESIGNATION -->
           <ng-container matColumnDef="designation">
             <th mat-header-cell *matHeaderCellDef>Designation</th>
             <td mat-cell *matCellDef="let emp">
@@ -114,6 +117,7 @@
             </td>
           </ng-container>
 
+          <!-- ROLE -->
           <ng-container matColumnDef="role">
             <th mat-header-cell *matHeaderCellDef>Role</th>
             <td mat-cell *matCellDef="let emp">
@@ -121,6 +125,7 @@
             </td>
           </ng-container>
 
+          <!-- STATUS -->
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let emp">
@@ -130,41 +135,61 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <!-- EXPANDED ACTION PANEL -->
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let emp" [attr.colspan]="displayedColumns.length">
 
-            <td mat-cell *matCellDef="let emp">
-              <div class="action-buttons" *ngIf="isAdmin">
+              <div class="employee-action-panel" *ngIf="expandedEmployee === emp">
 
-                <button mat-stroked-button class="status-btn" [class.deactivate]="emp.status"
-                  [class.activate]="!emp.status" (click)="toggleEmployeeStatus(emp)">
-                  {{ emp.status ? 'Deactivate Account' : 'Activate Account' }}
-                </button>
+                <div class="employee-action-info">
+                  <strong>{{ emp.name || 'Employee' }}</strong>
+                  <span>{{ emp.employeeCode || '-' }}</span>
+                </div>
 
-                <button mat-icon-button class="icon-action-btn update-icon-btn" matTooltip="Update Employee"
-                  (click)="openEditDialog(emp)">
-                  <mat-icon>edit</mat-icon>
-                </button>
+                <div class="employee-action-buttons" *ngIf="isAdmin">
 
-                <button mat-icon-button class="icon-action-btn delete-icon-btn" matTooltip="Delete Employee"
-                  (click)="deleteEmployee(emp)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                  <button mat-stroked-button class="status-btn" [class.deactivate]="emp.status"
+                    [class.activate]="!emp.status" (click)="toggleEmployeeStatus(emp); $event.stopPropagation()">
+                    {{ emp.status ? 'Deactivate Account' : 'Activate Account' }}
+                  </button>
+
+                  <button mat-stroked-button class="edit-action" matTooltip="Update Employee"
+                    (click)="openEditDialog(emp); $event.stopPropagation()">
+                    <mat-icon>edit</mat-icon>
+                    Update Employee
+                  </button>
+
+                  <button mat-stroked-button class="delete-action" matTooltip="Delete Employee"
+                    (click)="deleteEmployee(emp); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                    Delete Employee
+                  </button>
+
+                </div>
+
+                <span *ngIf="!isAdmin" class="no-action">
+                  No actions available
+                </span>
 
               </div>
 
-              <span *ngIf="!isAdmin" class="no-action">
-                No actions
-              </span>
             </td>
           </ng-container>
 
+          <!-- HEADER ROW -->
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          <!-- NORMAL EMPLOYEE ROW -->
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="employee-row"
+            [class.selected-row]="expandedEmployee === row" (click)="toggleRow(row)"></tr>
+
+          <!-- EXPANDED ACTION ROW -->
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
 
         </table>
       </div>
 
+      <!-- NO DATA -->
       <ng-template #noData>
         <div class="no-data">
           <mat-icon>

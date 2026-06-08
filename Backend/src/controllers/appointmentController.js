@@ -158,10 +158,48 @@ exports.getAppointments = async (req, res) => {
             );
         }
 
+        const formattedAppointments = await Promise.all(
+            appointments.map(async (appointment) => {
+                const patient = await Patient.findOne({
+                    UHID: appointment.patientId
+                });
+
+                const doctor = await Employee.findOne({
+                    employeeCode: appointment.doctorEmployeeId
+                });
+
+                return {
+                    _id: appointment._id,
+
+                    appointmentId: appointment.appointmentId,
+
+                    patientId: appointment.patientId,
+                    patientName: patient?.name || "N/A",
+                    patientPhone: patient?.phone || "N/A",
+                    patientEmail: patient?.email || "N/A",
+
+                    doctorEmployeeId: appointment.doctorEmployeeId,
+                    doctorName: doctor?.name || "N/A",
+                    doctorDepartment: doctor?.department || "N/A",
+                    doctorDesignation: doctor?.designation || "N/A",
+
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    status: appointment.status,
+                    reason: appointment.reason || "",
+
+                    createdByEmployeeId: appointment.createdByEmployeeId || null,
+
+                    createdAt: appointment.createdAt,
+                    updatedAt: appointment.updatedAt
+                };
+            })
+        );
+
         return res.status(200).json(
             new ApiResponse(
                 200,
-                appointments,
+                formattedAppointments,
                 "Appointments fetched successfully"
             )
         );
