@@ -1,6 +1,7 @@
 const Employee = require("../models/Employee");
 const User = require("../models/User");
-
+const Appointment = require("../models/Appointment");
+const Patient = require("../models/Patient");
 const crypto = require("node:crypto");
 const bcrypt = require("bcryptjs");
 
@@ -10,7 +11,52 @@ const sendEmail = require("../utils/sendEmail");
 
 const jwt = require("jsonwebtoken");
 
+const cancelDoctorAppointments = async (doctorEmployeeId, reason) => {
+    const appointments = await Appointment.find({
+        doctorEmployeeId,
+        status: { $nin: ["CANCELLED", "COMPLETED"] }
+    });
 
+    let cancelledCount = 0;
+
+    for (const appointment of appointments) {
+        appointment.status = "CANCELLED";
+        appointment.cancellationReason = reason;
+
+        await appointment.save();
+
+        const patient = await Patient.findOne({
+            UHID: appointment.patientId
+        });
+
+        if (patient?.email) {
+            await sendEmail({
+                to: patient.email,
+                subject: "HMS Appointment Cancelled",
+                html: `
+                    <h2>Appointment Cancelled</h2>
+
+                    <p>Hello ${patient.name},</p>
+
+                    <p>Your appointment has been cancelled because the assigned doctor is currently unavailable.</p>
+
+                    <p><strong>Appointment ID:</strong> ${appointment.appointmentId}</p>
+                    <p><strong>Date:</strong> ${appointment.date?.toDateString()}</p>
+                    <p><strong>Time Slot:</strong> ${appointment.timeSlot}</p>
+                    <p><strong>Reason:</strong> ${reason}</p>
+
+                    <p>Please contact hospital reception to book another appointment.</p>
+
+                    <p>Thank you,<br/>HMS Team</p>
+                `
+            });
+        }
+
+        cancelledCount++;
+    }
+
+    return cancelledCount;
+};
 exports.adminAddEmployee = async (req, res) => {
     try {
         const {
@@ -289,7 +335,7 @@ exports.login = async (req, res) => {
             );
         }
 
-        
+
 
         const passCheck = await user.isPasswordCorrect(password);
 
@@ -308,7 +354,7 @@ exports.login = async (req, res) => {
         const accessToken = user.generateAccessToken();
 
         const userDecoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        
+
 
         if (user.mustResetPassword) {
             return res.status(200).json(
@@ -567,6 +613,19 @@ exports.deleteEmployee = async (req, res) => {
             );
         }
 
+        const user = await User.findOne({
+            employeeId: employee.employeeCode
+        });
+
+        let cancelledAppointments = 0;
+
+        if (user?.roles === "DOCTOR" || user?.roles?.includes("DOCTOR")) {
+            cancelledAppointments = await cancelDoctorAppointments(
+                employee.employeeCode,
+                "Doctor has been removed from the hospital system"
+            );
+        }
+
         await Employee.deleteOne({ employeeCode });
         await User.deleteOne({ employeeId: employee.employeeCode });
 
@@ -576,9 +635,10 @@ exports.deleteEmployee = async (req, res) => {
                 {
                     employeeCode: employee.employeeCode,
                     name: employee.name,
-                    email: employee.email
+                    email: employee.email,
+                    cancelledAppointments
                 },
-                "Employee deleted successfully"
+                `Employee deleted successfully. ${cancelledAppointments} related appointment(s) cancelled.`
             )
         );
 
@@ -775,6 +835,18 @@ exports.toggleEmployeeStatus = async (req, res) => {
         await user.save();
         await employee.save();
 
+        let cancelledAppointments = 0;
+
+        if (
+            newStatus === false &&
+            (user.roles === "DOCTOR" || user.roles?.includes("DOCTOR"))
+        ) {
+            cancelledAppointments = await cancelDoctorAppointments(
+                employee.employeeCode,
+                "Doctor account has been deactivated"
+            );
+        }
+
         await sendEmail({
             to: user.email,
             subject: "HMS Account Status Updated",
@@ -810,10 +882,10 @@ exports.toggleEmployeeStatus = async (req, res) => {
                 200,
                 {
                     employeeCode: employee.employeeCode,
-                    status: newStatus
+                    status: newStatus,
+                    cancelledAppointments
                 },
-                `Employee account ${newStatus ? "activated" : "deactivated"} successfully`
-            )
+                `Employee account ${newStatus ? "activated" : "deactivated"} successfully. ${cancelledAppointments} related appointment(s) cancelled.`)
         );
 
     } catch (err) {
