@@ -1,16 +1,34 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { tokenInterceptor } from './core/interceptors/token-interceptor';
-import { provideToastr } from 'ngx-toastr'
-import { routes } from './app.routes';
+import { provideAnimations } from '@angular/platform-browser/animations';
+
+import { provideToastr } from 'ngx-toastr';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
+import { routes } from './app.routes';
+import { tokenInterceptor } from './core/interceptors/token-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
-  ]
+
+    provideRouter(routes),
+
+    provideHttpClient(withInterceptors([tokenInterceptor])),
+
+    provideAnimations(),
+
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+    }),
+
+    provideNativeDateAdapter(),
+  ],
 };
