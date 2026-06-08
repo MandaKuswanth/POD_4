@@ -3,8 +3,10 @@ const router = express.Router();
 
 const employeeController = require("../controllers/employeeController");
 const verifyJWT = require("../middleware/authMiddleware");
+const { selfRegistrationValidation } = require("../middleware/employeeValidations");
+const validateRequest = require("../middleware/validate");
 
-router.post("/register", employeeController.selfRegister);
+router.post("/register", selfRegistrationValidation, validateRequest, employeeController.selfRegister);
 router.post("/login", employeeController.login);
 
 router.post("/reset-password", verifyJWT, employeeController.resetPassword);

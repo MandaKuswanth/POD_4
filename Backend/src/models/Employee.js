@@ -15,7 +15,7 @@ const employeeSchema = new mongoose.Schema({
     joiningDate:{type:Date},
     medicalRegistrationNo: { type: String },
     specialization: { type: String},
-    qualification: { type: Array, required: true },
+    qualification: { type: Array, default: [] },
     consultationFee: { type: Number },
     availabilitySlots: { type: Array }
 },
