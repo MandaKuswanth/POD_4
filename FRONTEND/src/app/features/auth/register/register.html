@@ -1,1 +1,97 @@
-<p>register works!</p>
+<section class="register-page">
+  <div class="register-card">
+    <h1>Employee Self Registration</h1>
+    <p class="subtitle">Create your employee account. Your request will be reviewed by an admin before activation.</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+      <label>
+        Full name
+        <input formControlName="name" type="text" placeholder="Full Name" />
+        <small class="error-text" *ngIf="fieldHasError('name')">{{ fieldErrorMessage('name') }}</small>
+      </label>
+
+      <label>
+        Email
+        <input formControlName="email" type="email" placeholder="email" />
+        <small class="error-text" *ngIf="fieldHasError('email')">{{ fieldErrorMessage('email') }}</small>
+      </label>
+
+      <label>
+        Phone
+        <input formControlName="phone" type="tel" placeholder="Mob No." />
+        <small class="error-text" *ngIf="fieldHasError('phone')">{{ fieldErrorMessage('phone') }}</small>
+      </label>
+
+      <label>
+        Department
+        <input formControlName="department" type="text" placeholder="Cardiology,Dental,Ortho,etc. " />
+        <small class="error-text" *ngIf="fieldHasError('department')">{{ fieldErrorMessage('department') }}</small>
+      </label>
+
+      <label>
+        Designation
+        <input formControlName="designation" type="text" placeholder="Designation" />
+        <small class="error-text" *ngIf="fieldHasError('designation')">{{ fieldErrorMessage('designation') }}</small>
+      </label>
+
+      <label>
+        Role
+        <select formControlName="role">
+          <option value="RECEPTIONIST">Receptionist</option>
+          <option value="DOCTOR">Doctor</option>
+          <option value="NURSE">Nurse</option>
+          <option value="LAB_TECH">Lab Technician</option>
+          <option value="PHARMACIST">Pharmacist</option>
+          <option value="CASHIER">Cashier</option>
+          <option value="TECHNICIAN">Technician</option>
+        </select>
+        <small class="error-text" *ngIf="fieldHasError('role')">{{ fieldErrorMessage('role') }}</small>
+      </label>
+
+      <label>
+        Password
+        <input formControlName="password" type="password" placeholder="Minimum 6 characters" />
+        <small class="error-text" *ngIf="fieldHasError('password')">{{ fieldErrorMessage('password') }}</small>
+      </label>
+
+      <label>
+        Confirm password
+        <input formControlName="confirmPassword" type="password" placeholder="Re-enter password" />
+        <small class="error-text" *ngIf="fieldHasError('confirmPassword') || registerForm.errors?.['passwordMismatch']">{{ fieldErrorMessage('confirmPassword') || 'Passwords do not match.' }}</small>
+      </label>
+
+      <section class="doctor-fields" *ngIf="isDoctor || needsQualification">
+        <h2>Role-specific details</h2>
+        <label *ngIf="isDoctor">
+          Medical registration number
+          <input formControlName="medicalRegistrationNo" type="text" placeholder="MRN" />
+        </label>
+
+        <label *ngIf="isDoctor">
+          Specialization
+          <input formControlName="specialization" type="text" placeholder="Cardiology" />
+        </label>
+
+        <label *ngIf="needsQualification">
+          Qualifications (comma separated)
+          <input formControlName="qualification" type="text" placeholder="MBBS, MD" />
+        </label>
+
+        <label *ngIf="isDoctor">
+          Consultation fee
+          <input formControlName="consultationFee" type="number" min="0" placeholder="500" />
+        </label>
+
+        <label *ngIf="isDoctor">
+          Availability slots (comma separated)
+          <input formControlName="availabilitySlots" type="text" placeholder="09:00-11:00, 14:00-16:00" />
+        </label>
+      </section>
+
+      <button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Submitting...' : 'Register' }}</button>
+    </form>
+
+    <p class="status" [class.error]="statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('correct')">{{ statusMessage || 'Use this form to submit your employee registration request.' }}</p>
+    <p class="link-row"><a routerLink="/login">Already have an account? Login</a></p>
+  </div>
+</section>
