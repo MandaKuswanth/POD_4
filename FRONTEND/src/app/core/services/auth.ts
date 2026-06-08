@@ -40,7 +40,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  private readonly API_URL = 'http://localhost:5000/api';
+  private readonly API_URL = 'http://localhost:5000/api/employees';
 
   private readonly TOKEN_KEY = 'token';
   private readonly USER_KEY = 'user';
