@@ -14,8 +14,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { Sidebar } from '../../../shared/components/sidebar/sidebar';
-import { Employee } from '../../../core/services/employee';
-import { Auth } from '../../../core/services/auth';
+import { EmployeeService} from '../../../core/services/employee';
+import { AuthService } from '../../../core/services/auth';
 import { EmployeeDialog } from '../employee-dialog/employee-dialog';
 
 @Component({
@@ -38,8 +38,8 @@ import { EmployeeDialog } from '../employee-dialog/employee-dialog';
   styleUrl: './employee-list.css'
 })
 export class EmployeeList implements OnInit {
-  private readonly employeeService = inject(Employee);
-  private readonly authService = inject(Auth);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly authService = inject(AuthService);
   private readonly toastr = inject(ToastrService);
   private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);

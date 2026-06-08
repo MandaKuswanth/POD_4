@@ -4,10 +4,10 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
-import { Navbar } from '../../../shared/components/navbar/navbar';
-import { Sidebar } from '../../../shared/components/sidebar/sidebar';
-import { Auth } from '../../../core/services/auth';
-import { Employee } from '../../../core/services/employee';
+import { Navbar } from '../../shared/components/navbar/navbar';
+import { Sidebar } from '../..//shared/components/sidebar/sidebar';
+import { AuthService} from '../..//core/services/auth';
+import { EmployeeService} from '..//../core/services/employee';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,8 +23,8 @@ import { Employee } from '../../../core/services/employee';
   styleUrl: './dashboard.css'
 })
 export class Dashboard implements OnInit {
-  private readonly authService = inject(Auth);
-  private readonly employeeService = inject(Employee);
+  private readonly authService = inject(AuthService);
+  private readonly employeeService = inject(EmployeeService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 

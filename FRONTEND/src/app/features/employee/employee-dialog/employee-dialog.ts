@@ -24,7 +24,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ToastrService } from 'ngx-toastr';
-import { Employee } from '../../../core/services/employee';
+import { EmployeeService } from '../../../core/services/employee';
 import {
   EMPLOYEE_ROLES,
   NAME_PATTERN,
@@ -90,7 +90,7 @@ export interface EmployeeDialogData {
 })
 export class EmployeeDialog implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly employeeService = inject(Employee);
+  private readonly employeeService = inject(EmployeeService);
   private readonly toastr = inject(ToastrService);
   private readonly dialogRef = inject(MatDialogRef<EmployeeDialog>);
 
