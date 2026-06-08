@@ -1,1 +1,174 @@
-<p>appointment-list works!</p>
+<app-navbar></app-navbar>
+
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="content">
+
+    <mat-card class="table-card">
+
+      <div class="page-header">
+        <div class="header-left">
+          <mat-icon>event_available</mat-icon>
+
+          <div>
+            <h2>Appointments</h2>
+            <p>Manage hospital appointments</p>
+          </div>
+        </div>
+
+        @if (role !== 'DOCTOR') {
+          <button
+            mat-fab
+            color="primary"
+            matTooltip="Add Appointment"
+            (click)="openAddDialog()"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search appointments</mat-label>
+
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            (input)="applySearch()"
+            placeholder="Search by ID, UHID, doctor, status"
+          />
+
+          @if (searchText) {
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              matTooltip="Clear search"
+              (click)="clearSearch()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          type="button"
+          (click)="loadAppointments()"
+        >
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+
+      <div class="summary-cards">
+        <div class="summary-card booked">
+          <span>Booked</span>
+          <strong>{{ getStatusCount('BOOKED') }}</strong>
+        </div>
+
+        <div class="summary-card process">
+          <span>In Process</span>
+          <strong>{{ getStatusCount('IN-PROCESS') }}</strong>
+        </div>
+
+        <div class="summary-card completed">
+          <span>Completed</span>
+          <strong>{{ getStatusCount('COMPLETED') }}</strong>
+        </div>
+
+        <div class="summary-card cancelled">
+          <span>Cancelled</span>
+          <strong>{{ getStatusCount('CANCELLED') }}</strong>
+        </div>
+      </div>
+
+      @if (isLoading) {
+
+        <div class="no-data">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>Loading appointments...</p>
+        </div>
+
+      } @else if (filteredAppointments.length > 0) {
+
+        <div class="table-wrapper">
+
+          <table mat-table [dataSource]="filteredAppointments">
+
+            <ng-container matColumnDef="appointmentId">
+              <th mat-header-cell *matHeaderCellDef>Appointment ID</th>
+              <td mat-cell *matCellDef="let a">{{ a.appointmentId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="patientId">
+              <th mat-header-cell *matHeaderCellDef>Patient UHID</th>
+              <td mat-cell *matCellDef="let a">{{ a.patientId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="doctorEmployeeId">
+              <th mat-header-cell *matHeaderCellDef>Doctor</th>
+              <td mat-cell *matCellDef="let a">{{ a.doctorEmployeeId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let a">
+                {{ a.date | date:'mediumDate' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="timeSlot">
+              <th mat-header-cell *matHeaderCellDef>Slot</th>
+              <td mat-cell *matCellDef="let a">{{ a.timeSlot }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let a">
+                <span class="badge" [ngClass]="a.status?.toLowerCase()">
+                  {{ a.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            @if (role !== 'DOCTOR') {
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+
+                <td mat-cell *matCellDef="let a">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    matTooltip="Delete Appointment"
+                    (click)="deleteAppointment(a)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+            }
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          </table>
+
+        </div>
+
+      } @else {
+
+        <div class="no-data">
+          <mat-icon>event_busy</mat-icon>
+          <p>No appointments found.</p>
+        </div>
+
+      }
+
+    </mat-card>
+
+  </main>
+</div>

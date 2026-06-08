@@ -1,25 +1,28 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-account-inactive',
+  selector: 'app-landing',
   standalone: true,
   imports: [
-    MatCardModule,
+    CommonModule,
     MatButtonModule,
     MatIconModule
   ],
-  templateUrl: './account-inactive.html',
-  styleUrl: './account-inactive.css'
+  templateUrl: './landing.html',
+  styleUrl: './landing.css'
 })
-export class AccountInactive {
-  constructor(private router: Router) { }
+export class Landing {
+  constructor(readonly router: Router) { }
 
   goToLogin(): void {
     this.router.navigate(['/login']);
+  }
+  goToRegister(): void {
+    this.router.navigate(['/register']);
   }
 }
