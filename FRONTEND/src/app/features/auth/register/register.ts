@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee';
@@ -7,7 +7,7 @@ import { EmployeeService } from '../../../core/services/employee';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf, NgFor],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -140,11 +140,15 @@ export class Register {
   }
 
   private getRegistrationErrorMessage(error: any): string {
+    const status = error?.status;
     const backendMessage = error?.error?.message || error?.message || '';
 
+    if (status === 409 || status === 422) {
+      return 'Employee already exists. Kindly login';
+    }
+
     if (/already exists/i.test(backendMessage) || /duplicate/i.test(backendMessage)) {
-      this.router.navigate(['/login']);
-      return 'This employee already exists. Please login instead.';
+      return 'Employee already exists. Kindly login';
     }
 
     return backendMessage || 'Registration failed. Please try again.';

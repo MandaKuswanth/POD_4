@@ -141,7 +141,7 @@
         <button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Submitting...' : 'Register' }}</button>
       </form>
 
-      <p class="status" [class.error]="statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('correct') || statusMessage.toLowerCase().includes('already exists')">{{ statusMessage || 'Use this form to submit your employee registration request.' }}</p>
+      <p class="status" [class.error]="statusMessage.toLowerCase().includes('failed') || statusMessage.toLowerCase().includes('correct') || statusMessage.toLowerCase().includes('already exists') || statusMessage.toLowerCase().includes('kindly')">{{ statusMessage || 'Use this form to submit your employee registration request.' }}</p>
       <p class="link-row"><a routerLink="/login">Already have an account? Login</a></p>
     </section>
   </div>
