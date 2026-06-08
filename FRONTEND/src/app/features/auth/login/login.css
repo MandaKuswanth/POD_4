@@ -6,9 +6,11 @@
     justify-content: center;
     align-items: center;
     padding: 24px;
-    background: linear-gradient(135deg,
-            #f5f7fa 0%,
-            #e8f5f2 100%);
+
+    background:
+        radial-gradient(circle at top left, #dbeafe 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #bfdbfe 0%, transparent 25%),
+        linear-gradient(135deg, #f8fbff 0%, #eff6ff 100%);
 }
 
 /* Card */
@@ -17,10 +19,16 @@
     width: 100%;
     max-width: 420px;
     padding: 2rem;
-    border-radius: 20px;
+
+    border-radius: 24px;
+
+    background: rgba(255, 255, 255, 0.95);
+
     box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.08),
-        0 2px 10px rgba(0, 0, 0, 0.04);
+        0 18px 45px rgba(25, 118, 210, 0.12),
+        0 4px 14px rgba(0, 0, 0, 0.05);
+
+    border: 1px solid rgba(25, 118, 210, 0.08);
 }
 
 /* Header */
@@ -34,20 +42,26 @@
     width: 64px;
     height: 64px;
     font-size: 64px;
-    color: #009688;
+
+    color: #1976d2;
+
     margin-bottom: 0.75rem;
 }
 
 .login-header h2 {
     margin: 0;
-    color: #1f2937;
+
+    color: #0d47a1;
+
     font-size: 1.875rem;
     font-weight: 700;
 }
 
 .login-header p {
     margin-top: 0.5rem;
-    color: #6b7280;
+
+    color: #607d8b;
+
     font-size: 0.95rem;
 }
 
@@ -74,9 +88,32 @@ form {
 .login-btn {
     height: 48px;
     margin-top: 0.5rem;
+
+    border-radius: 12px;
+
     font-size: 1rem;
     font-weight: 600;
-    border-radius: 12px;
+
+    background: #1976d2 !important;
+    color: #ffffff !important;
+
+    box-shadow:
+        0 10px 24px rgba(25, 118, 210, 0.25);
+
+    transition: all 0.25s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+    background: #0d47a1 !important;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 14px 30px rgba(25, 118, 210, 0.35);
+}
+
+.login-btn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 /* Register Link */
@@ -88,19 +125,23 @@ form {
 
 .register-link p {
     margin: 0;
-    color: #6b7280;
+
+    color: #607d8b;
+
     font-size: 0.9rem;
 }
 
 .register-link a {
-    color: #009688;
+    color: #1976d2;
+
     font-weight: 600;
     text-decoration: none;
+
     transition: color 0.2s ease;
 }
 
 .register-link a:hover {
-    color: #00695c;
+    color: #0d47a1;
     text-decoration: underline;
 }
 

@@ -2,15 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
 
 export interface LoginRequest {
   email: string;
   password: string;
-}
-
-export interface LoginResponse {
-  token: string;
 }
 
 export interface ResetPasswordRequest {
@@ -18,25 +13,41 @@ export interface ResetPasswordRequest {
   confirmPassword?: string;
 }
 
-export interface DecodedToken {
-  id: string;
+export interface User {
+  employeeId: string;
   email: string;
   role: string;
+  status: boolean;
   mustResetPassword: boolean;
-  exp?: number;
+}
+
+export interface LoginResponse {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    resetRequired: boolean;
+    user: User;
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
   private readonly API_URL = 'http://localhost:5000/api';
-  private readonly TOKEN_KEY = 'token';
 
-  login(data: LoginRequest): Observable<LoginResponse> {
+  private readonly TOKEN_KEY = 'token';
+  private readonly USER_KEY = 'user';
+
+  login(
+    data: LoginRequest
+  ): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${this.API_URL}/login`,
       data
@@ -52,18 +63,43 @@ export class AuthService {
     );
   }
 
-  saveLoginData(response: LoginResponse): void {
-    if (response?.token) {
+  saveLoginData(
+    response: LoginResponse
+  ): void {
+
+    const token = response?.data?.token;
+    const user = response?.data?.user;
+
+    if (token) {
       localStorage.setItem(
         this.TOKEN_KEY,
-        response.token
+        token
+      );
+    }
+
+    if (user) {
+      localStorage.setItem(
+        this.USER_KEY,
+        JSON.stringify(user)
       );
     }
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+
+    localStorage.removeItem(
+      this.TOKEN_KEY
+    );
+
+    localStorage.removeItem(
+      this.USER_KEY
+    );
+
     this.router.navigate(['/login']);
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
   getToken(): string | null {
@@ -72,42 +108,34 @@ export class AuthService {
     );
   }
 
-  isLoggedIn(): boolean {
-    const token = this.getToken();
+  getUser(): User | null {
 
-    if (!token) {
-      return false;
-    }
+    const user = localStorage.getItem(
+      this.USER_KEY
+    );
 
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-
-      if (!decoded.exp) {
-        return true;
-      }
-
-      return decoded.exp * 1000 > Date.now();
-    } catch {
-      return false;
-    }
+    return user
+      ? JSON.parse(user)
+      : null;
   }
 
   getRole(): string | null {
-    return this.getDecodedToken()?.role ?? null;
+    return this.getUser()?.role ?? null;
   }
 
-  getUser(): DecodedToken | null {
-    return this.getDecodedToken();
+  getEmployeeId(): string | null {
+    return this.getUser()?.employeeId ?? null;
   }
 
   mustResetPassword(): boolean {
     return (
-      this.getDecodedToken()
+      this.getUser()
         ?.mustResetPassword ?? false
     );
   }
 
   isAdminOrTechnician(): boolean {
+
     const role = this.getRole();
 
     return (
@@ -116,19 +144,7 @@ export class AuthService {
     );
   }
 
-  private getDecodedToken():
-    | DecodedToken
-    | null {
-    const token = this.getToken();
-
-    if (!token) {
-      return null;
-    }
-
-    try {
-      return jwtDecode<DecodedToken>(token);
-    } catch {
-      return null;
-    }
+  hasRole(role: string): boolean {
+    return this.getRole() === role;
   }
 }
