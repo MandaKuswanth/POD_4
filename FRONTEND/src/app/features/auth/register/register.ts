@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee';
 
 @Component({
@@ -14,6 +14,7 @@ import { EmployeeService } from '../../../core/services/employee';
 export class Register {
   private readonly fb = inject(FormBuilder);
   private readonly employeeService = inject(EmployeeService);
+  private readonly router = inject(Router);
 
   readonly registerForm = this.fb.nonNullable.group(
     {
@@ -133,9 +134,20 @@ export class Register {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.statusMessage = error?.error?.message || 'Registration failed. Please try again.';
+        this.statusMessage = this.getRegistrationErrorMessage(error);
       }
     });
+  }
+
+  private getRegistrationErrorMessage(error: any): string {
+    const backendMessage = error?.error?.message || error?.message || '';
+
+    if (/already exists/i.test(backendMessage) || /duplicate/i.test(backendMessage)) {
+      this.router.navigate(['/login']);
+      return 'This employee already exists. Please login instead.';
+    }
+
+    return backendMessage || 'Registration failed. Please try again.';
   }
 
   private updateRoleSpecificValidators(): void {
