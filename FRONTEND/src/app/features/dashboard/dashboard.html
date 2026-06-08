@@ -1,1 +1,99 @@
-<p>dashboard works!</p>
+<app-navbar></app-navbar>
+
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="content">
+    <section class="welcome">
+      <h1>Welcome, {{ user?.name || 'User' }}</h1>
+      <p>You are logged in as <strong>{{ role }}</strong></p>
+    </section>
+
+    <section class="cards">
+ 
+
+<ng-container *ngIf="canViewEmployeeStats">
+
+  <!-- Total Employees -->
+  <mat-card
+    class="overview-card clickable-card"
+    (click)="goToEmployees('all')">
+
+    <mat-icon>groups</mat-icon>
+    <h3>Total Employees</h3>
+    <p class="count">{{ totalEmployees }}</p>
+
+  </mat-card>
+
+  <!-- Active Employees -->
+  <mat-card
+    class="overview-card clickable-card"
+    (click)="goToEmployees('active')">
+
+    <mat-icon>check_circle</mat-icon>
+    <h3>Active Employees</h3>
+    <p class="count">{{ activeEmployees }}</p>
+
+  </mat-card>
+
+  <!-- Pending Employees -->
+  <mat-card
+    class="overview-card clickable-card"
+    (click)="goToEmployees('pending')">
+
+    <mat-icon>hourglass_empty</mat-icon>
+    <h3>Pending Employees</h3>
+    <p class="count">{{ pendingEmployees }}</p>
+
+  </mat-card>
+
+</ng-container>
+<ng-container *ngIf="role === 'DOCTOR'">
+
+    <mat-card class="overview-card clickable-card">
+      <mat-icon>event</mat-icon>
+      <h3>Appointments</h3>
+      <p class="count">0</p>
+    </mat-card>
+
+    <mat-card class="overview-card clickable-card">
+      <mat-icon>people</mat-icon>
+      <h3>Patients</h3>
+      <p class="count">0</p>
+    </mat-card>
+
+  </ng-container>
+
+  <!-- NURSE -->
+  <ng-container *ngIf="role === 'NURSE'">
+
+    <mat-card class="overview-card clickable-card">
+      <mat-icon>groups</mat-icon>
+      <h3>Assigned Patients</h3>
+      <p class="count">0</p>
+    </mat-card>
+
+  </ng-container>
+
+  <!-- RECEPTIONIST -->
+  <ng-container *ngIf="role === 'RECEPTIONIST'">
+
+    <mat-card class="overview-card clickable-card">
+      <mat-icon>event_available</mat-icon>
+      <h3>Appointments</h3>
+      <p class="count">0</p>
+    </mat-card>
+
+    <mat-card class="overview-card clickable-card">
+      <mat-icon>person_add</mat-icon>
+      <h3>Registrations</h3>
+      <p class="count">0</p>
+    </mat-card>
+
+  </ng-container>
+
+
+
+    </section>
+  </main>
+</div>
