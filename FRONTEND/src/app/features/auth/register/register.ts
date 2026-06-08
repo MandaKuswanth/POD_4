@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { NgIf } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgFor, NgIf } from '@angular/common';
+import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf],
+  imports: [ReactiveFormsModule, RouterLink, NgIf, NgFor],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -29,12 +29,19 @@ export class Register {
       specialization: [''],
       qualification: [''],
       consultationFee: [''],
-      availabilitySlots: ['']
+      availabilitySlots: this.fb.array<string>([])
     },
     {
       validators: this.passwordsMatchValidator()
     }
   );
+
+  readonly availabilitySlotOptions = [
+    '09:00-11:00',
+    '11:00-13:00',
+    '14:00-16:00',
+    '16:00-18:00'
+  ];
 
   isSubmitting = false;
   statusMessage = '';
@@ -52,6 +59,10 @@ export class Register {
 
   get needsQualification(): boolean {
     return ['DOCTOR', 'NURSE'].includes(this.registerForm.get('role')?.value || '');
+  }
+
+  get availabilitySlotsControl(): FormArray {
+    return this.registerForm.get('availabilitySlots') as FormArray;
   }
 
   fieldHasError(controlName: string): boolean {
@@ -77,6 +88,9 @@ export class Register {
     }
     if (control.errors['pattern']) {
       return 'Please enter a valid 10-digit phone number.';
+    }
+    if (control.errors['min']) {
+      return `Value must be at least ${control.errors['min'].min}.`;
     }
     if (control.errors['passwordMismatch']) {
       return 'Passwords do not match.';
@@ -114,7 +128,7 @@ export class Register {
           specialization: '',
           qualification: '',
           consultationFee: '',
-          availabilitySlots: ''
+          availabilitySlots: []
         });
       },
       error: (error) => {
@@ -138,6 +152,8 @@ export class Register {
       control?.updateValueAndValidity();
     });
 
+    this.availabilitySlotsControl.clear();
+
     if (role === 'DOCTOR') {
       medicalRegistrationNo?.setValidators([Validators.required, Validators.minLength(4)]);
       specialization?.setValidators([Validators.required, Validators.minLength(2)]);
@@ -159,9 +175,28 @@ export class Register {
     return {
       ...raw,
       qualification: this.parseList(raw.qualification),
-      availabilitySlots: this.parseList(raw.availabilitySlots),
+      availabilitySlots: this.availabilitySlotsControl.value ?? [],
       consultationFee: raw.consultationFee ? Number(raw.consultationFee) : undefined
     };
+  }
+
+  toggleAvailabilitySlot(slot: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+
+    if (checked) {
+      this.availabilitySlotsControl.push(new FormControl(slot));
+    } else {
+      const index = this.availabilitySlotsControl.controls.findIndex((control) => control.value === slot);
+      if (index >= 0) {
+        this.availabilitySlotsControl.removeAt(index);
+      }
+    }
+
+    this.availabilitySlotsControl.updateValueAndValidity();
+  }
+
+  isAvailabilitySlotSelected(slot: string): boolean {
+    return this.availabilitySlotsControl.value?.includes(slot) ?? false;
   }
 
   private parseList(value: string): string[] {
