@@ -604,44 +604,55 @@ exports.updateEmployee = async (req, res) => {
 };
 
 
-exports.deletePatient = async (req, res) => {
+exports.deleteEmployee = async (req, res) => {
     try {
-        const { uhid } = req.params;
+        const { employeeCode } = req.params;
 
-        const patient = await Patient.findOne({ UHID: uhid });
+        const employee = await Employee.findOne({ employeeCode });
 
-        if (!patient) {
+        if (!employee) {
             return res.status(404).json(
-                new ApiError(404, "Patient not found")
+                new ApiError(404, "Employee not found")
             );
         }
 
-        const cancelledAppointments = await cancelPatientAppointments(
-            uhid,
-            "Patient has been removed from the hospital system"
-        );
+        const user = await User.findOne({
+            employeeId: employee.employeeCode
+        });
 
-        await Patient.deleteOne({ UHID: uhid });
+        let cancelledAppointments = 0;
+
+        if (user?.roles == "DOCTOR" || user?.roles?.includes("DOCTOR")) {
+            cancelledAppointments = await cancelDoctorAppointments(
+                employee.employeeCode,
+                "Doctor has been removed from the hospital system"
+            );
+        }
+
+        await Employee.deleteOne({ employeeCode });
+        await User.deleteOne({ employeeId: employee.employeeCode });
 
         return res.status(200).json(
             new ApiResponse(
                 200,
                 {
-                    uhid: patient.UHID,
-                    name: patient.name,
+                    employeeCode: employee.employeeCode,
+                    name: employee.name,
+                    email: employee.email,
                     cancelledAppointments
                 },
-                `Patient deleted successfully. ${cancelledAppointments} related appointment(s) cancelled.`
+                `Employee deleted successfully. ${cancelledAppointments} related appointment(s) cancelled.`
             )
         );
 
     } catch (err) {
         console.error(err);
         return res.status(500).json(
-            new ApiError(500, err.message || "Internal Server Error")
+            new ApiError(500, err.message || "Failed to delete employee")
         );
     }
 };
+
 
 exports.getPendingEmployees = async (req, res) => {
     try {
