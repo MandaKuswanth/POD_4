@@ -17,6 +17,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -42,6 +45,9 @@ import { AuthService } from '../../../core/services/auth';
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
 
     Navbar,
     Sidebar,
@@ -65,6 +71,10 @@ export class AppointmentList implements OnInit {
   isLoading = false;
 
   expandedAppointment: any = null;
+
+  selectedStatus = 'ALL STATUS';
+  selectedDoctor = 'ALL DOCTORS';
+  selectedDate: Date | null = null;
 
   displayedColumns: string[] = [
     'appointmentId',
@@ -125,37 +135,12 @@ export class AppointmentList implements OnInit {
   }
 
   applySearch(): void {
-    const value = this.searchText.toLowerCase().trim();
-
-    if (!value) {
-      this.filteredAppointments = [...this.appointments];
-      this.expandedAppointment = null;
-      this.cdr.markForCheck();
-      return;
-    }
-
-    this.filteredAppointments = this.appointments.filter((appointment: any) =>
-      appointment.appointmentId?.toLowerCase().includes(value) ||
-      appointment.patientId?.toLowerCase().includes(value) ||
-      appointment.patientName?.toLowerCase().includes(value) ||
-      appointment.patientPhone?.toLowerCase().includes(value) ||
-      appointment.doctorEmployeeId?.toLowerCase().includes(value) ||
-      appointment.doctorName?.toLowerCase().includes(value) ||
-      appointment.doctorDepartment?.toLowerCase().includes(value) ||
-      appointment.timeSlot?.toLowerCase().includes(value) ||
-      appointment.status?.toLowerCase().includes(value) ||
-      appointment.reason?.toLowerCase().includes(value)
-    );
-
-    this.expandedAppointment = null;
-    this.cdr.markForCheck();
+    this.applyFilters();
   }
 
   clearSearch(): void {
     this.searchText = '';
-    this.filteredAppointments = [...this.appointments];
-    this.expandedAppointment = null;
-    this.cdr.markForCheck();
+    this.applyFilters();
   }
 
   toggleRow(appointment: any): void {
@@ -243,4 +228,60 @@ export class AppointmentList implements OnInit {
       ? appointment.doctorName
       : `Dr. ${appointment.doctorName}`;
   }
+  get statuses(): string[] {
+  return ['ALL STATUS', 'BOOKED', 'IN-PROCESS', 'COMPLETED', 'CANCELLED'];
+}
+
+get doctors(): any[] {
+  const doctorList = this.appointments
+    .map((appointment: any) => appointment.doctorName)
+    .filter(Boolean);
+
+  return ['ALL DOCTORS', ...new Set(doctorList)];
+}
+
+applyFilters(): void {
+  const search = this.searchText.toLowerCase().trim();
+
+  this.filteredAppointments = this.appointments.filter((appointment: any) => {
+    const matchesSearch =
+      !search ||
+      appointment.appointmentId?.toLowerCase().includes(search) ||
+      appointment.patientId?.toLowerCase().includes(search) ||
+      appointment.patientName?.toLowerCase().includes(search) ||
+      appointment.doctorEmployeeId?.toLowerCase().includes(search) ||
+      appointment.doctorName?.toLowerCase().includes(search) ||
+      appointment.timeSlot?.toLowerCase().includes(search) ||
+      appointment.status?.toLowerCase().includes(search);
+
+    const matchesStatus =
+      this.selectedStatus === 'ALL STATUS' ||
+      appointment.status === this.selectedStatus;
+
+    const matchesDoctor =
+      this.selectedDoctor === 'ALL DOCTORS' ||
+      appointment.doctorName === this.selectedDoctor;
+
+    const matchesDate =
+      !this.selectedDate ||
+      new Date(appointment.date).toDateString() ===
+        new Date(this.selectedDate).toDateString();
+
+    return matchesSearch && matchesStatus && matchesDoctor && matchesDate;
+  });
+
+  this.expandedAppointment = null;
+  this.cdr.markForCheck();
+}
+
+clearFilters(): void {
+  this.searchText = '';
+  this.selectedStatus = 'ALL STATUS';
+  this.selectedDoctor = 'ALL DOCTORS';
+  this.selectedDate = null;
+
+  this.filteredAppointments = [...this.appointments];
+  this.expandedAppointment = null;
+  this.cdr.markForCheck();
+}
 }
