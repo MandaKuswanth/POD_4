@@ -1,4 +1,14 @@
 /* MAIN LAYOUT */
+.layout {
+    height: calc(100vh - 72px);
+    overflow: hidden;
+}
+
+.content {
+    height: calc(100vh - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 :host {
     display: block;
     height: 100vh;
@@ -18,32 +28,21 @@ app-sidebar {
     width: 260px;
     flex-shrink: 0;
     height: calc(100vh - 72px);
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 /* CONTENT AREA */
 .content {
     flex: 1;
     min-width: 0;
-    height: calc(100vh - 72px);
-    overflow: hidden;
+    min-height: calc(100vh - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 24px;
 }
 
 /* TABLE CARD */
-.table-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border-radius: 28px !important;
-    padding: 0 !important;
-    background: #ffffff;
-    border: 1px solid #dbeafe;
-    overflow: hidden;
-    box-shadow:
-        0 14px 36px rgba(13, 71, 161, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.04);
-}
+
 
 /* PAGE HEADER - FIXED INSIDE CARD */
 .page-header {
@@ -64,19 +63,22 @@ app-sidebar {
     font-weight: 800;
 }
 
-/* TOOLBAR */
 .toolbar-row {
     display: flex;
     align-items: center;
     gap: 16px;
-    width: 100%;
     flex-wrap: nowrap;
+    width: 100%;
+}
+
+.header-actions {
+    margin-left: auto;
 }
 
 /* SEARCH */
 .search-container {
-    width: 340px;
-    flex-shrink: 0;
+    width: 300px;
+    flex: 0 0 300px;
 }
 
 .search-input {
@@ -173,18 +175,16 @@ app-sidebar {
 
 /* TABLE WRAPPER - ONLY THIS AREA SCROLLS */
 .table-wrapper {
-    flex: 1;
-    min-height: 0;
+    max-height: calc(100vh - 250px);
     overflow-y: auto;
-    overflow-x: auto;
+    overflow-x: hidden;
     border-radius: 0;
 }
-
 /* TABLE */
 table {
     width: 100%;
-    min-width: 1150px;
-    border-collapse: collapse;
+    /* min-width: 1150px;
+    border-collapse: collapse; */
 }
 
 /* STICKY TABLE HEADER */
@@ -438,9 +438,6 @@ button:disabled {
         padding: 14px;
     }
 
-    .table-card {
-        border-radius: 20px !important;
-    }
 
     .page-header {
         padding: 18px;

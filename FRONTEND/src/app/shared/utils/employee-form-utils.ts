@@ -99,22 +99,21 @@ export function trimInputValue(value: unknown): string {
     return typeof value === 'string' ? value.trim() : '';
 }
 
-export function noFutureDateValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-        const selectedDate = control.value;
+export function noFutureDateValidator(control: any) {
 
-        if (!selectedDate) {
-            return null;
-        }
+  if (!control.value) {
+    return null;
+  }
 
-        const todayDate = new Date();
-        todayDate.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(control.value);
+  selectedDate.setHours(0, 0, 0, 0);
 
-        const joiningDate = new Date(selectedDate);
-        joiningDate.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-        return joiningDate > todayDate ? { futureDate: true } : null;
-    };
+  return selectedDate < today
+    ? { pastDate: true }
+    : null;
 }
 
 export function passwordStrengthValidator(): ValidatorFn {

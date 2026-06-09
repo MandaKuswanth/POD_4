@@ -44,6 +44,7 @@ import {
   addDoctorPayloadFields
 } from '../../../shared/utils/employee-form-utils';
 
+
 export interface EmployeeData {
   _id?: string;
   employeeCode?: string;
@@ -98,6 +99,24 @@ export class EmployeeDialog implements OnInit {
 
   loading = false;
   readonly roles = EMPLOYEE_ROLES;
+  timeSlots: string[] = [
+  '09:00 AM - 09:30 AM',
+  '09:30 AM - 10:00 AM',
+  '10:00 AM - 10:30 AM',
+  '10:30 AM - 11:00 AM',
+  '11:00 AM - 11:30 AM',
+  '11:30 AM - 12:00 PM',
+  '12:00 PM - 12:30 PM',
+  '12:30 PM - 01:00 PM',
+  '01:00 PM - 01:30 PM',
+  '01:30 PM - 02:00 PM',
+  '02:00 PM - 02:30 PM',
+  '02:30 PM - 03:00 PM',
+  '03:00 PM - 03:30 PM',
+  '03:30 PM - 04:00 PM',
+  '04:00 PM - 04:30 PM',
+  '04:30 PM - 05:00 PM'
+];
 
   form = this.fb.group({
     name: [
@@ -148,7 +167,8 @@ export class EmployeeDialog implements OnInit {
     joiningDate: [
       '',
       [
-        noFutureDateValidator()
+        Validators.required,
+        noFutureDateValidator
       ]
     ],
 
@@ -213,19 +233,14 @@ export class EmployeeDialog implements OnInit {
 
     if (employee.availabilitySlots?.length) {
       employee.availabilitySlots.forEach((slot: string) => {
-        this.availabilitySlots.push(this.createSlotControl(slot));
+        this.availabilitySlots.push(this.fb.control(slot));
       });
     }
 
     this.onRoleChange();
   }
 
-  private createSlotControl(value = '') {
-    return this.fb.control(value, [
-      Validators.required,
-      Validators.pattern(SLOT_PATTERN)
-    ]);
-  }
+  
 
   onRoleChange(): void {
     const qualificationControl = this.form.get('qualificationText');
@@ -241,9 +256,7 @@ export class EmployeeDialog implements OnInit {
     if (this.showMedicalStaffFields()) {
       qualificationControl?.setValidators(getQualificationValidators());
 
-      if (this.availabilitySlots.length === 0) {
-        this.addSlot();
-      }
+    
     } else {
       this.availabilitySlots.clear();
     }
@@ -270,17 +283,27 @@ export class EmployeeDialog implements OnInit {
     this.form.updateValueAndValidity();
   }
 
-  addSlot(): void {
-    this.availabilitySlots.push(this.createSlotControl());
-  }
 
-  removeSlot(index: number): void {
-    this.availabilitySlots.removeAt(index);
+  toggleSlot(slot: string, event: any): void {
 
-    if (this.showMedicalStaffFields() && this.availabilitySlots.length === 0) {
-      this.addSlot();
+  if (event.target.checked) {
+
+    this.availabilitySlots.push(
+      this.fb.control(slot)
+    );
+
+  } else {
+
+    const index = this.availabilitySlots.value.indexOf(slot);
+
+    if (index > -1) {
+      this.availabilitySlots.removeAt(index);
     }
+
   }
+}
+
+
 
   onSubmit(): void {
     if (this.form.invalid) {
