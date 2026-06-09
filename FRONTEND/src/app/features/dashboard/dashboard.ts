@@ -1,13 +1,16 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 import { Navbar } from '../../shared/components/navbar/navbar';
-import { Sidebar } from '../..//shared/components/sidebar/sidebar';
-import { AuthService} from '../..//core/services/auth';
-import { EmployeeService} from '..//../core/services/employee';
+import { Sidebar } from '../../shared/components/sidebar/sidebar';
+
+import { AuthService } from '../../core/services/auth';
+import { EmployeeService } from '../../core/services/employee';
+import { AppointmentService } from '../../core/services/appointment';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +28,7 @@ import { EmployeeService} from '..//../core/services/employee';
 export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
+  private readonly appointmentService = inject(AppointmentService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 
@@ -37,8 +41,10 @@ export class Dashboard implements OnInit {
   activeEmployees = 0;
   pendingEmployees = 0;
 
+  doctorAppointmentsCount = 0;
+
   ngOnInit(): void {
-    this.role = this.authService.getRole();
+    this.role = this.authService.getRole()?.toUpperCase() || null;
 
     console.log('DASHBOARD ROLE:', this.role);
 
@@ -48,6 +54,10 @@ export class Dashboard implements OnInit {
 
     if (this.canViewEmployeeStats) {
       this.loadEmployeesCount();
+    }
+
+    if (this.role === 'DOCTOR') {
+      this.loadDoctorAppointmentsCount();
     }
   }
 
@@ -68,13 +78,17 @@ export class Dashboard implements OnInit {
           response;
 
         if (!this.role && this.user?.role) {
-          this.role = this.user.role;
+          this.role = this.user.role.toUpperCase();
         }
 
         this.canViewEmployeeStats = this.isAdminOrTechnician();
 
         if (this.canViewEmployeeStats) {
           this.loadEmployeesCount();
+        }
+
+        if (this.role === 'DOCTOR') {
+          this.loadDoctorAppointmentsCount();
         }
 
         this.cdr.detectChanges();
@@ -112,12 +126,6 @@ export class Dashboard implements OnInit {
           emp.is_active === false
         ).length;
 
-        console.log('DASHBOARD COUNTS:', {
-          total: this.totalEmployees,
-          active: this.activeEmployees,
-          pending: this.pendingEmployees
-        });
-
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -131,22 +139,45 @@ export class Dashboard implements OnInit {
       }
     });
   }
-  goToEmployees(view: string): void {
 
-  if (view === 'all') {
+  private loadDoctorAppointmentsCount(): void {
+    this.appointmentService.getAppointments().subscribe({
+      next: (response: any) => {
+        console.log('DOCTOR APPOINTMENTS RESPONSE:', response);
 
-    this.router.navigate(['/employees']);
+        let appointments: any[] = [];
 
-  } else {
+        if (Array.isArray(response?.data)) {
+          appointments = response.data;
+        } else if (Array.isArray(response)) {
+          appointments = response;
+        }
 
-    this.router.navigate(
-      ['/employees'],
-      {
-        queryParams: { view }
+        this.doctorAppointmentsCount = appointments.length;
+
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('DOCTOR APPOINTMENT COUNT ERROR:', error);
+
+        this.doctorAppointmentsCount = 0;
+
+        this.cdr.detectChanges();
       }
-    );
-
+    });
   }
 
-}
+  goToEmployees(view: string): void {
+    if (view === 'all') {
+      this.router.navigate(['/employees']);
+    } else {
+      this.router.navigate(['/employees'], {
+        queryParams: { view }
+      });
+    }
+  }
+
+  goToAppointments(): void {
+    this.router.navigate(['/appointments']);
+  }
 }
