@@ -58,22 +58,6 @@ const cancelDoctorAppointments = async (doctorEmployeeId, reason) => {
     return cancelledCount;
 };
 
-const cancelPatientAppointments = async (uhid, reason) => {
-    const result = await Appointment.updateMany(
-        {
-            patientUHID: uhid,
-            status: { $nin: ["CANCELLED", "COMPLETED"] }
-        },
-        {
-            $set: {
-                status: "CANCELLED",
-                cancellationReason: reason
-            }
-        }
-    );
-
-    return result.modifiedCount;
-};
 
 exports.adminAddEmployee = async (req, res) => {
     try {

@@ -8,6 +8,23 @@ const ApiError = require("../utils/ApiError");
 
 const sendEmail = require("../utils/sendEmail");
 
+const cancelPatientAppointments = async (uhid, reason) => {
+    const result = await Appointment.updateMany(
+        {
+            patientUHID: uhid,
+            status: { $nin: ["CANCELLED", "COMPLETED"] }
+        },
+        {
+            $set: {
+                status: "CANCELLED",
+                cancellationReason: reason
+            }
+        }
+    );
+
+    return result.modifiedCount;
+};
+
 
 exports.createAppointment = async (req, res) => {
     try {
