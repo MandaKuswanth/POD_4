@@ -67,3 +67,15 @@ app-sidebar *::-webkit-scrollbar {
     overflow-y: auto;
     overflow-x: auto;
 }
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
