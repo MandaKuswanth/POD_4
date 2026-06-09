@@ -57,8 +57,6 @@ const cancelDoctorAppointments = async (doctorEmployeeId, reason) => {
 
     return cancelledCount;
 };
-
-
 exports.adminAddEmployee = async (req, res) => {
     try {
         const {
@@ -624,7 +622,7 @@ exports.deleteEmployee = async (req, res) => {
 
         let cancelledAppointments = 0;
 
-        if (user?.roles == "DOCTOR" || user?.roles?.includes("DOCTOR")) {
+        if (user?.roles === "DOCTOR" || user?.roles?.includes("DOCTOR")) {
             cancelledAppointments = await cancelDoctorAppointments(
                 employee.employeeCode,
                 "Doctor has been removed from the hospital system"
@@ -844,7 +842,7 @@ exports.toggleEmployeeStatus = async (req, res) => {
 
         if (
             newStatus === false &&
-            (user.roles == "DOCTOR" || user.roles?.includes("DOCTOR"))
+            (user.roles === "DOCTOR" || user.roles?.includes("DOCTOR"))
         ) {
             cancelledAppointments = await cancelDoctorAppointments(
                 employee.employeeCode,
