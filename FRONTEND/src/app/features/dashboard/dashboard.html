@@ -13,19 +13,22 @@
 
       @if (canViewEmployeeStats) {
 
-      <mat-card class="overview-card clickable-card" (click)="goToEmployees('all')">
+      <mat-card class="overview-card clickable-card" tabindex="0" (click)="goToEmployees('all')"
+        (keydown.enter)="goToEmployees('all')" (keydown.space)="goToEmployees('all')">
         <mat-icon>groups</mat-icon>
         <h3>Total Employees</h3>
         <p class="count">{{ totalEmployees }}</p>
       </mat-card>
 
-      <mat-card class="overview-card clickable-card" (click)="goToEmployees('active')">
+      <mat-card class="overview-card clickable-card" tabindex="0" (click)="goToEmployees('active')"
+        (keydown.enter)="goToEmployees('active')" (keydown.space)="goToEmployees('active')">
         <mat-icon>check_circle</mat-icon>
         <h3>Active Employees</h3>
         <p class="count">{{ activeEmployees }}</p>
       </mat-card>
 
-      <mat-card class="overview-card clickable-card" (click)="goToEmployees('pending')">
+      <mat-card class="overview-card clickable-card" tabindex="0" (click)="goToEmployees('pending')"
+        (keydown.enter)="goToEmployees('pending')" (keydown.space)="goToEmployees('pending')">
         <mat-icon>hourglass_empty</mat-icon>
         <h3>Pending Employees</h3>
         <p class="count">{{ pendingEmployees }}</p>
@@ -35,7 +38,8 @@
 
       @if (role === 'DOCTOR') {
 
-      <mat-card class="overview-card clickable-card" (click)="goToAppointments()">
+      <mat-card class="overview-card clickable-card" tabindex="0" (click)="goToAppointments()"
+        (keydown.enter)="goToAppointments()" (keydown.space)="goToAppointments()">
         <mat-icon>event</mat-icon>
         <h3>My Appointments</h3>
         <p class="count">{{ doctorAppointmentsCount }}</p>
@@ -45,7 +49,8 @@
 
       @if (role === 'NURSE') {
 
-      <mat-card class="overview-card clickable-card">
+      <mat-card class="overview-card clickable-card" tabindex="0" (keydown.enter)="$event.preventDefault()"
+        (keydown.space)="$event.preventDefault()">
         <mat-icon>groups</mat-icon>
         <h3>Assigned Patients</h3>
         <p class="count">0</p>
@@ -55,13 +60,15 @@
 
       @if (role === 'RECEPTIONIST') {
 
-      <mat-card class="overview-card clickable-card" (click)="goToAppointments()">
+      <mat-card class="overview-card clickable-card" tabindex="0" (click)="goToAppointments()"
+        (keydown.enter)="goToAppointments()" (keydown.space)="goToAppointments()">
         <mat-icon>event_available</mat-icon>
         <h3>Appointments</h3>
         <p class="count">0</p>
       </mat-card>
 
-      <mat-card class="overview-card clickable-card">
+      <mat-card class="overview-card clickable-card" tabindex="0" (keydown.enter)="$event.preventDefault()"
+        (keydown.space)="$event.preventDefault()">
         <mat-icon>person_add</mat-icon>
         <h3>Registrations</h3>
         <p class="count">0</p>
