@@ -1,6 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    FormBuilder,
+    ReactiveFormsModule,
+    ValidationErrors,
+    Validators
+} from '@angular/forms';
 
 import {
     MAT_DIALOG_DATA,
@@ -18,9 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { ToastrService } from 'ngx-toastr';
 
-import {
-    PatientService
-} from '../../../core/services/patient';
+import { PatientService } from '../../../core/services/patient';
 
 export interface PatientDialogData {
     mode: 'add' | 'edit' | 'view';
@@ -57,19 +61,70 @@ export class PatientDialog implements OnInit {
 
     genders = ['male', 'female', 'others'];
 
-
     form = this.fb.group({
-    name: [null, Validators.required],
-    email: [null, [Validators.required, Validators.email]],
-    phone: [null, Validators.required],
-    gender: [null, Validators.required],
-    dob: [null, Validators.required],
-    address: [null],
-    emergencyName: [null],
-    emergencyRelation: [null],
-    emergencyPhone: [null]
-    });
+        name: [
+            null,
+            [
+                Validators.required,
+                Validators.minLength(3),
+                Validators.maxLength(50),
+                Validators.pattern(/^[A-Za-z ]+$/)
+            ]
+        ],
 
+        email: [
+            null,
+            [
+                Validators.required,
+                Validators.email,
+                Validators.maxLength(80)
+            ]
+        ],
+
+        phone: [
+            null,
+            [
+                Validators.required,
+                Validators.pattern(/^[6-9]\d{9}$/)
+            ]
+        ],
+
+        gender: [
+            null,
+            Validators.required
+        ],
+
+        dob: [
+            null,
+            [
+                Validators.required,
+                this.futureDateValidator
+            ]
+        ],
+
+        address: [
+            null,
+            Validators.maxLength(200)
+        ],
+
+        emergencyName: [
+            null,
+            [
+                Validators.maxLength(50),
+                Validators.pattern(/^[A-Za-z ]*$/)
+            ]
+        ],
+
+        emergencyRelation: [
+            null,
+            Validators.maxLength(30)
+        ],
+
+        emergencyPhone: [
+            null,
+            Validators.pattern(/^[6-9]\d{9}$/)
+        ]
+    });
 
     get isViewMode(): boolean {
         return this.data.mode === 'view';
@@ -77,12 +132,8 @@ export class PatientDialog implements OnInit {
 
     ngOnInit(): void {
 
-        // ✅ ALWAYS RESET FIRST (fixes Add mode bug)
         this.resetForm();
 
-        // ==============================
-        // EDIT / VIEW MODE
-        // ==============================
         if (this.data?.patient) {
 
             const patient = this.data.patient;
@@ -104,36 +155,52 @@ export class PatientDialog implements OnInit {
             }
         }
 
-        // ==============================
-        // ADD MODE FIX
-        // ==============================
         if (this.data?.mode === 'add') {
             this.form.enable();
         }
     }
 
-    // ✅ clean reset helper
- private resetForm(): void {
-    this.form.reset({
-        name: null,
-        email: null,
-        phone: null,
-        gender: null,
-        dob: null,
-        address: null,
-        emergencyName: null,
-        emergencyRelation: null,
-        emergencyPhone: null
-    });
+    private futureDateValidator(
+        control: AbstractControl
+    ): ValidationErrors | null {
 
-    this.form.enable();
-}
+        if (!control.value) {
+            return null;
+        }
+
+        const selectedDate = new Date(control.value);
+        const today = new Date();
+
+        selectedDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        return selectedDate > today
+            ? { futureDate: true }
+            : null;
+    }
+
+    private resetForm(): void {
+
+        this.form.reset({
+            name: null,
+            email: null,
+            phone: null,
+            gender: null,
+            dob: null,
+            address: null,
+            emergencyName: null,
+            emergencyRelation: null,
+            emergencyPhone: null
+        });
+
+        this.form.enable();
+    }
 
     onSubmit(): void {
 
         if (this.form.invalid) {
             this.form.markAllAsTouched();
-            this.toastr.error('Please fill all required fields');
+            this.toastr.error('Please fill all required fields correctly');
             return;
         }
 
@@ -142,61 +209,72 @@ export class PatientDialog implements OnInit {
         const formValue = this.form.getRawValue();
 
         const payload = {
-            name: formValue.name || '',
-            email: formValue.email || '',
-            phone: formValue.phone || '',
-            gender: formValue.gender || '',
+            name: formValue.name ?? '',
+            email: formValue.email ?? '',
+            phone: formValue.phone ?? '',
+            gender: formValue.gender ?? '',
             dob: formValue.dob
-                ? formatDate(new Date(formValue.dob), 'yyyy-MM-dd', 'en-US')
-                : '',
-            address: formValue.address || '',
+            ? formatDate(
+            new Date(formValue.dob),
+            'yyyy-MM-dd',
+            'en-US'
+            )
+            : '',
+            address: formValue.address ?? '',
             emergencyContact: {
-                name: formValue.emergencyName || '',
-                relation: formValue.emergencyRelation || '',
-                phone: formValue.emergencyPhone || ''
-            }
+            name: formValue.emergencyName ?? '',
+            relation: formValue.emergencyRelation ?? '',
+            phone: formValue.emergencyPhone ?? ''
+          }
         };
 
-        // ==============================
-        // UPDATE PATIENT
-        // ==============================
         if (this.data?.mode === 'edit') {
 
             this.patientService
-                .updatePatient(this.data.patient!.UHID!, payload)
+                .updatePatient(
+                    this.data.patient!.UHID!,
+                    payload
+                )
                 .subscribe({
 
                     next: () => {
                         this.loading = false;
-                        this.toastr.success('Patient updated successfully');
+                        this.toastr.success(
+                            'Patient updated successfully'
+                        );
                         this.dialogRef.close(true);
                     },
 
                     error: (err) => {
                         this.loading = false;
-                        this.toastr.error(err?.error?.message || 'Failed to update patient');
+                        this.toastr.error(
+                            err?.error?.message ||
+                            'Failed to update patient'
+                        );
                     }
                 });
 
             return;
         }
 
-        // ==============================
-        // CREATE PATIENT
-        // ==============================
         this.patientService
             .createPatient(payload)
             .subscribe({
 
                 next: () => {
                     this.loading = false;
-                    this.toastr.success('Patient created successfully');
+                    this.toastr.success(
+                        'Patient created successfully'
+                    );
                     this.dialogRef.close(true);
                 },
 
                 error: (err) => {
                     this.loading = false;
-                    this.toastr.error(err?.error?.message || 'Failed to create patient');
+                    this.toastr.error(
+                        err?.error?.message ||
+                        'Failed to create patient'
+                    );
                 }
             });
     }

@@ -16,7 +16,7 @@
       <span class="nav-label">Employee List</span>
     </a>
 
-    <a class="nav-item" routerLink="/patients" routerLinkActive="active" *ngIf="isAdminOrReceptionist()">
+    <a class="nav-item" routerLink="/patients" routerLinkActive="active" *ngIf="isAdminOrReceptionistOrNurse()">
       <mat-icon>personal_injury</mat-icon>
       <span class="nav-label">Patients</span>
     </a>

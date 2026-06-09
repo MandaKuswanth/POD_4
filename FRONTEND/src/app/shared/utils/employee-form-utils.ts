@@ -83,9 +83,7 @@ export const MEDICAL_STAFF_ROLES = ['DOCTOR', 'NURSE', 'LAB_TECH'];
 export const NAME_PATTERN = /^[A-Za-z ]+$/;
 export const PHONE_PATTERN = /^[6-9]\d{9}$/;
 export const MEDICAL_REGISTRATION_PATTERN = /^[A-Za-z\d/-]+$/;
-export const CONSULTATION_FEE_PATTERN = /^\d+$/;
-export const SLOT_PATTERN =
-    /^([01]?\d|2[0-3]):[0-5]\d\s?-\s?([01]?\d|2[0-3]):[0-5]\d$/;
+export const CONSULTATION_FEE_PATTERN = /^\d+$/;    
 
 export function isDoctorRole(role: string): boolean {
     return role === 'DOCTOR';

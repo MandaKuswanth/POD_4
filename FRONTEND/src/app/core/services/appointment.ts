@@ -24,7 +24,7 @@ export class AppointmentService {
     readonly http = inject(HttpClient);
 
     readonly baseUrl =
-        'http://localhost:5000/api';
+        'http://localhost:3000/api';
 
     createAppointment(
         data: AppointmentRequest

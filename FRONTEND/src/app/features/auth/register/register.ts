@@ -74,9 +74,9 @@ export class Register {
   fieldErrorMessage(controlName: string): string {
     const control = this.registerForm.get(controlName);
 
-    if (!control || !control.errors) {
-      return '';
-    }
+   if (!control?.errors) {
+  return '';
+  }
 
     if (control.errors['required']) {
       return 'This field is required.';

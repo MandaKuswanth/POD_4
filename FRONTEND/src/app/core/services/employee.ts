@@ -26,7 +26,7 @@ export interface EmployeeRequest {
 export class EmployeeService {
   private readonly http = inject(HttpClient);
 
-  private readonly baseUrl = 'http://localhost:5000/api/employees';
+  private readonly baseUrl = 'http://localhost:3000/api/employees';
 
   // Public employee registration
   registerEmployee(data: EmployeeRequest): Observable<any> {
