@@ -218,8 +218,9 @@
 
           <!-- MAIN APPOINTMENT ROW -->
           <tr mat-row *matRowDef="let row; columns: displayedColumns" class="appointment-row"
-            [class.selected-row]="expandedAppointment === row" (click)="toggleRow(row)"></tr>
-
+            [class.selected-row]="expandedAppointment === row" (click)="toggleRow(row)" (keydown.enter)="toggleRow(row)"
+            (keydown.space)="toggleRow(row)" tabindex="0">
+          </tr>
           <!-- EXPANDED DETAIL ROW -->
           <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
 

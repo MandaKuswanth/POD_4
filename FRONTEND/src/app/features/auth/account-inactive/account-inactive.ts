@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './account-inactive.css'
 })
 export class AccountInactive {
-  constructor(private router: Router) { }
+  constructor(private readonly router: Router) { }
 
   goToLogin(): void {
     this.router.navigate(['/login']);
