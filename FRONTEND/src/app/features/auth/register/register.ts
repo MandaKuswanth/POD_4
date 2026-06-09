@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee';
@@ -7,7 +7,7 @@ import { EmployeeService } from '../../../core/services/employee';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf, NgFor],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -140,11 +140,20 @@ export class Register {
   }
 
   private getRegistrationErrorMessage(error: any): string {
+    const status = error?.status;
     const backendMessage = error?.error?.message || error?.message || '';
+    const validationErrors = error?.error?.errors;
+
+    if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+      return validationErrors[0]?.msg || 'Invalid registration details';
+    }
+
+    if (status === 409) {
+      return 'Employee already exists. Kindly login';
+    }
 
     if (/already exists/i.test(backendMessage) || /duplicate/i.test(backendMessage)) {
-      this.router.navigate(['/login']);
-      return 'This employee already exists. Please login instead.';
+      return 'Employee already exists. Kindly login';
     }
 
     return backendMessage || 'Registration failed. Please try again.';
@@ -183,11 +192,13 @@ export class Register {
 
   private buildPayload() {
     const raw = this.registerForm.getRawValue();
+    const qualification = this.parseList(raw.qualification);
+    const availabilitySlots = this.availabilitySlotsControl.value ?? [];
 
     return {
       ...raw,
-      qualification: this.parseList(raw.qualification),
-      availabilitySlots: this.availabilitySlotsControl.value ?? [],
+      qualification: qualification.length ? qualification : undefined,
+      availabilitySlots: availabilitySlots.length ? availabilitySlots : undefined,
       consultationFee: raw.consultationFee ? Number(raw.consultationFee) : undefined
     };
   }

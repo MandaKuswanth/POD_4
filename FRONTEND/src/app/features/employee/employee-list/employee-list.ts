@@ -55,6 +55,7 @@ export class EmployeeList implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   employees: any[] = [];
+  expandedEmployee: any = null;
 
   searchText = '';
   selectedRole = 'ALL ROLES';
@@ -193,6 +194,11 @@ export class EmployeeList implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  toggleRow(employee: any): void {
+    this.expandedEmployee = this.expandedEmployee === employee ? null : employee;
+    this.cdr.markForCheck();
   }
 
   openAddDialog(): void {
