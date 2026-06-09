@@ -1,6 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    FormBuilder,
+    ReactiveFormsModule,
+    ValidationErrors,
+    Validators
+} from '@angular/forms';
 
 import {
     MAT_DIALOG_DATA,
@@ -56,15 +62,68 @@ export class PatientDialog implements OnInit {
     genders = ['male', 'female', 'others'];
 
     form = this.fb.group({
-        name: [null, Validators.required],
-        email: [null, [Validators.required, Validators.email]],
-        phone: [null, Validators.required],
-        gender: [null, Validators.required],
-        dob: [null, Validators.required],
-        address: [null],
-        emergencyName: [null],
-        emergencyRelation: [null],
-        emergencyPhone: [null]
+        name: [
+            null,
+            [
+                Validators.required,
+                Validators.minLength(3),
+                Validators.maxLength(50),
+                Validators.pattern(/^[A-Za-z ]+$/)
+            ]
+        ],
+
+        email: [
+            null,
+            [
+                Validators.required,
+                Validators.email,
+                Validators.maxLength(80)
+            ]
+        ],
+
+        phone: [
+            null,
+            [
+                Validators.required,
+                Validators.pattern(/^[6-9]\d{9}$/)
+            ]
+        ],
+
+        gender: [
+            null,
+            Validators.required
+        ],
+
+        dob: [
+            null,
+            [
+                Validators.required,
+                this.futureDateValidator
+            ]
+        ],
+
+        address: [
+            null,
+            Validators.maxLength(200)
+        ],
+
+        emergencyName: [
+            null,
+            [
+                Validators.maxLength(50),
+                Validators.pattern(/^[A-Za-z ]*$/)
+            ]
+        ],
+
+        emergencyRelation: [
+            null,
+            Validators.maxLength(30)
+        ],
+
+        emergencyPhone: [
+            null,
+            Validators.pattern(/^[6-9]\d{9}$/)
+        ]
     });
 
     get isViewMode(): boolean {
@@ -101,7 +160,27 @@ export class PatientDialog implements OnInit {
         }
     }
 
+    private futureDateValidator(
+        control: AbstractControl
+    ): ValidationErrors | null {
+
+        if (!control.value) {
+            return null;
+        }
+
+        const selectedDate = new Date(control.value);
+        const today = new Date();
+
+        selectedDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        return selectedDate > today
+            ? { futureDate: true }
+            : null;
+    }
+
     private resetForm(): void {
+
         this.form.reset({
             name: null,
             email: null,
@@ -121,7 +200,7 @@ export class PatientDialog implements OnInit {
 
         if (this.form.invalid) {
             this.form.markAllAsTouched();
-            this.toastr.error('Please fill all required fields');
+            this.toastr.error('Please fill all required fields correctly');
             return;
         }
 
@@ -135,7 +214,11 @@ export class PatientDialog implements OnInit {
             phone: formValue.phone || '',
             gender: formValue.gender || '',
             dob: formValue.dob
-                ? formatDate(new Date(formValue.dob), 'yyyy-MM-dd', 'en-US')
+                ? formatDate(
+                    new Date(formValue.dob),
+                    'yyyy-MM-dd',
+                    'en-US'
+                )
                 : '',
             address: formValue.address || '',
             emergencyContact: {
@@ -148,18 +231,26 @@ export class PatientDialog implements OnInit {
         if (this.data?.mode === 'edit') {
 
             this.patientService
-                .updatePatient(this.data.patient!.UHID!, payload)
+                .updatePatient(
+                    this.data.patient!.UHID!,
+                    payload
+                )
                 .subscribe({
 
                     next: () => {
                         this.loading = false;
-                        this.toastr.success('Patient updated successfully');
+                        this.toastr.success(
+                            'Patient updated successfully'
+                        );
                         this.dialogRef.close(true);
                     },
 
                     error: (err) => {
                         this.loading = false;
-                        this.toastr.error(err?.error?.message || 'Failed to update patient');
+                        this.toastr.error(
+                            err?.error?.message ||
+                            'Failed to update patient'
+                        );
                     }
                 });
 
@@ -172,13 +263,18 @@ export class PatientDialog implements OnInit {
 
                 next: () => {
                     this.loading = false;
-                    this.toastr.success('Patient created successfully');
+                    this.toastr.success(
+                        'Patient created successfully'
+                    );
                     this.dialogRef.close(true);
                 },
 
                 error: (err) => {
                     this.loading = false;
-                    this.toastr.error(err?.error?.message || 'Failed to create patient');
+                    this.toastr.error(
+                        err?.error?.message ||
+                        'Failed to create patient'
+                    );
                 }
             });
     }
