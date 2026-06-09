@@ -67,6 +67,36 @@ exports.createAppointment = async (req, res) => {
         }
 
         const appointmentDate = new Date(date);
+        appointmentDate.setHours(0, 0, 0, 0);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        if (appointmentDate < tomorrow) {
+            return res.status(400).json(
+                new ApiError(
+                    400,
+                    "Appointments can be booked only from tomorrow onwards"
+                )
+            );
+        }
+
+        if (doctor.joiningDate) {
+            const doctorJoiningDate = new Date(doctor.joiningDate);
+            doctorJoiningDate.setHours(0, 0, 0, 0);
+
+            if (appointmentDate < doctorJoiningDate) {
+                return res.status(400).json(
+                    new ApiError(
+                        400,
+                        `Appointment cannot be booked before doctor's joining date`
+                    )
+                );
+            }
+        }
 
         const existingAppointment = await Appointment.findOne({
             doctorEmployeeId,

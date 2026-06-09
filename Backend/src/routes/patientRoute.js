@@ -9,7 +9,8 @@ const {
     getPatients,
     getPatientById,
     updatePatient,
-    deletePatient
+    deletePatient,
+    togglePatientStatus
 } = require("../controllers/patientController");
 
 
@@ -51,5 +52,14 @@ router.delete(
     allowRoles("ADMIN"),
     deletePatient
 );
+
+
+router.patch(
+  "/:uhid/status",
+  authMiddleware,
+  allowRoles("ADMIN", "RECEPTIONIST"),
+  togglePatientStatus
+);
+
 
 module.exports = router;

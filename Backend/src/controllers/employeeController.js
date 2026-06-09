@@ -335,6 +335,9 @@ exports.login = async (req, res) => {
             );
         }
 
+        const employee = await Employee.findOne({
+            employeeCode: user.employeeId
+        });
 
 
         const passCheck = await user.isPasswordCorrect(password);
