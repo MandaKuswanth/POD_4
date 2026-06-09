@@ -29,7 +29,7 @@
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Search appointments</mat-label>
 
-          <input matInput [(ngModel)]="searchText" (input)="applySearch()"
+          <input matInput [(ngModel)]="searchText" (input)="applyFilters()"
             placeholder="Search by appointment ID, patient, doctor, status" />
 
           @if (searchText) {
@@ -39,10 +39,36 @@
           }
         </mat-form-field>
 
-        <button mat-stroked-button color="primary" type="button" (click)="loadAppointments()">
-          <mat-icon>refresh</mat-icon>
-          Refresh
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let status of statuses" [value]="status">
+              {{ status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Doctor</mat-label>
+          <mat-select [(ngModel)]="selectedDoctor" (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let doctor of doctors" [value]="doctor">
+              {{ doctor }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="filterPicker" [(ngModel)]="selectedDate" (dateChange)="applyFilters()" />
+          <mat-datepicker-toggle matIconSuffix [for]="filterPicker"></mat-datepicker-toggle>
+          <mat-datepicker #filterPicker></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-stroked-button color="primary" type="button" (click)="clearFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Clear
         </button>
+
       </div>
 
       <!-- SUMMARY CARDS -->
