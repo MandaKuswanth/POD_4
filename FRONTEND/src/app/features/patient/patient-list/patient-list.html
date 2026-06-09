@@ -189,6 +189,7 @@
                     <button
                       mat-stroked-button
                       class="status-btn"
+                      *ngIf="canAddOrUpdatePatient"
                       [ngClass]="row.status ? 'deactivate-btn' : 'activate-btn'"
                       (click)="toggleStatus(row)">
 
