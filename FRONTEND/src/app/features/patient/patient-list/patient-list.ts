@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 import { PatientService, PatientRequest } from '../../../core/services/patient';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -39,6 +40,7 @@ export class PatientList implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly patientService = inject(PatientService);
+  private readonly toastr = inject(ToastrService);
 
   displayedColumns: string[] = [
     'UHID',
@@ -53,8 +55,6 @@ export class PatientList implements OnInit {
   dataSource = new MatTableDataSource<PatientRequest>([]);
   allPatients: PatientRequest[] = [];
 
-  loading = false;
-
   searchText = '';
   selectedGender = 'ALL';
   selectedStatus = 'ALL';
@@ -66,35 +66,34 @@ export class PatientList implements OnInit {
   }
 
   loadPatients(): void {
-    this.loading = true;
-
     this.patientService.getPatients().subscribe({
       next: (response) => {
         const patients = response?.data?.patients ?? [];
-
         this.allPatients = patients;
         this.dataSource.data = patients;
-
-        this.loading = false;
       },
-      error: (error) => {
-        console.error('Failed to load patients', error);
-        this.loading = false;
+      error: (err) => {
+        console.error('PATIENT LOAD ERROR:', err);
+        this.toastr.error('Failed to load patients');
       }
     });
   }
 
   get canAddOrUpdatePatient(): boolean {
     const role = (this.authService.getRole() ?? '').toUpperCase();
-
-    return role === 'ADMIN'
-      || role === 'RECEPTIONIST'
-      || role === 'TECHNICIAN';
+    return ['ADMIN', 'RECEPTIONIST', 'TECHNICIAN'].includes(role);
   }
 
   toggleRow(row: PatientRequest): void {
-    this.expandedPatient =
-      this.expandedPatient === row ? null : row;
+    this.expandedPatient = this.expandedPatient === row ? null : row;
+  }
+
+  onRowClick(row: PatientRequest, event: Event): void {
+    const target = event.target as HTMLElement;
+
+    if (target.closest('button')) return;
+
+    this.toggleRow(row);
   }
 
   applyFilters(): void {
@@ -128,7 +127,6 @@ export class PatientList implements OnInit {
     this.searchText = '';
     this.selectedGender = 'ALL';
     this.selectedStatus = 'ALL';
-
     this.dataSource.data = this.allPatients;
   }
 
@@ -148,10 +146,7 @@ export class PatientList implements OnInit {
     const ref = this.dialog.open(PatientDialog, {
       width: '800px',
       disableClose: true,
-      data: {
-        mode: 'edit',
-        patient
-      }
+      data: { mode: 'edit', patient }
     });
 
     ref.afterClosed().subscribe((result: boolean) => {
@@ -162,25 +157,31 @@ export class PatientList implements OnInit {
   viewPatient(patient: PatientRequest): void {
     this.dialog.open(PatientDialog, {
       width: '800px',
-      data: {
-        mode: 'view',
-        patient
-      }
+      data: { mode: 'view', patient }
     });
   }
 
   deletePatient(patient: PatientRequest): void {
-    if (!patient?.UHID) return;
+    if (!patient?.UHID) {
+      this.toastr.error('Patient ID missing');
+      return;
+    }
 
     const confirmed = confirm(
-      `Delete ${patient.name ?? ''} (${patient.UHID})?`
+      `Delete ${patient.name}? This action cannot be undone.`
     );
 
     if (!confirmed) return;
 
     this.patientService.deletePatient(patient.UHID).subscribe({
-      next: () => this.loadPatients(),
-      error: (err) => console.error('Delete failed', err)
+      next: () => {
+        this.toastr.success('Patient deleted successfully');
+        this.expandedPatient = null;
+        this.loadPatients();
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.message || 'Delete failed');
+      }
     });
   }
 
@@ -188,8 +189,22 @@ export class PatientList implements OnInit {
     if (!patient?.UHID) return;
 
     this.patientService.toggleStatus(patient.UHID).subscribe({
-      next: () => this.loadPatients(),
-      error: (err) => console.error('Status update failed', err)
+      next: () => {
+        const updatedStatus = !patient.status;
+
+        patient.status = updatedStatus;
+
+        this.allPatients = this.allPatients.map(p =>
+          p.UHID === patient.UHID ? { ...p, status: updatedStatus } : p
+        );
+
+        this.dataSource.data = [...this.allPatients];
+
+        this.toastr.success('Status updated successfully');
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.message || 'Status update failed');
+      }
     });
   }
 }

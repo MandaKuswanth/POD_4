@@ -18,9 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { ToastrService } from 'ngx-toastr';
 
-import {
-    PatientService
-} from '../../../core/services/patient';
+import { PatientService } from '../../../core/services/patient';
 
 export interface PatientDialogData {
     mode: 'add' | 'edit' | 'view';
@@ -57,19 +55,17 @@ export class PatientDialog implements OnInit {
 
     genders = ['male', 'female', 'others'];
 
-
     form = this.fb.group({
-    name: [null, Validators.required],
-    email: [null, [Validators.required, Validators.email]],
-    phone: [null, Validators.required],
-    gender: [null, Validators.required],
-    dob: [null, Validators.required],
-    address: [null],
-    emergencyName: [null],
-    emergencyRelation: [null],
-    emergencyPhone: [null]
+        name: [null, Validators.required],
+        email: [null, [Validators.required, Validators.email]],
+        phone: [null, Validators.required],
+        gender: [null, Validators.required],
+        dob: [null, Validators.required],
+        address: [null],
+        emergencyName: [null],
+        emergencyRelation: [null],
+        emergencyPhone: [null]
     });
-
 
     get isViewMode(): boolean {
         return this.data.mode === 'view';
@@ -77,12 +73,8 @@ export class PatientDialog implements OnInit {
 
     ngOnInit(): void {
 
-        // ✅ ALWAYS RESET FIRST (fixes Add mode bug)
         this.resetForm();
 
-        // ==============================
-        // EDIT / VIEW MODE
-        // ==============================
         if (this.data?.patient) {
 
             const patient = this.data.patient;
@@ -104,30 +96,26 @@ export class PatientDialog implements OnInit {
             }
         }
 
-        // ==============================
-        // ADD MODE FIX
-        // ==============================
         if (this.data?.mode === 'add') {
             this.form.enable();
         }
     }
 
-    // ✅ clean reset helper
- private resetForm(): void {
-    this.form.reset({
-        name: null,
-        email: null,
-        phone: null,
-        gender: null,
-        dob: null,
-        address: null,
-        emergencyName: null,
-        emergencyRelation: null,
-        emergencyPhone: null
-    });
+    private resetForm(): void {
+        this.form.reset({
+            name: null,
+            email: null,
+            phone: null,
+            gender: null,
+            dob: null,
+            address: null,
+            emergencyName: null,
+            emergencyRelation: null,
+            emergencyPhone: null
+        });
 
-    this.form.enable();
-}
+        this.form.enable();
+    }
 
     onSubmit(): void {
 
@@ -157,9 +145,6 @@ export class PatientDialog implements OnInit {
             }
         };
 
-        // ==============================
-        // UPDATE PATIENT
-        // ==============================
         if (this.data?.mode === 'edit') {
 
             this.patientService
@@ -181,9 +166,6 @@ export class PatientDialog implements OnInit {
             return;
         }
 
-        // ==============================
-        // CREATE PATIENT
-        // ==============================
         this.patientService
             .createPatient(payload)
             .subscribe({

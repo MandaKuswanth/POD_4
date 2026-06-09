@@ -26,7 +26,7 @@ export class PatientService {
     readonly http = inject(HttpClient);
 
     readonly baseUrl =
-        'http://localhost:5000/api/patients';
+        'http://localhost:3000/api/patients';
 
     createPatient(
         data: PatientRequest
@@ -37,15 +37,20 @@ export class PatientService {
             data
         );
     }
-    toggleStatus(
-        uhid: string
-        ): Observable<any> {
+    toggleStatus(uhid: string) {
+  const token = localStorage.getItem('token');
 
-        return this.http.patch(
-        `${this.baseUrl}/${uhid}/status`,
-        {}
-    );
+  return this.http.patch(
+    `${this.baseUrl}/${uhid}/status`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     }
+  );
+}
+
 
     updatePatient(
         uhid: string,

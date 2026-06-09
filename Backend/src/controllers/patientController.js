@@ -165,3 +165,33 @@ exports.deletePatient = async (req, res) => {
         );
     }
 };
+
+
+exports.togglePatientStatus = async (req, res) => {
+  try {
+    const { uhid } = req.params;
+
+    const patient = await Patient.findOne({ UHID: uhid });
+
+    if (!patient) {
+      return res.status(404).json({
+        message: "Patient not found"
+      });
+    }
+
+    patient.status = !patient.status;
+
+    await patient.save();
+
+    res.status(200).json({
+      message: "Status updated successfully",
+      data: patient
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+};
