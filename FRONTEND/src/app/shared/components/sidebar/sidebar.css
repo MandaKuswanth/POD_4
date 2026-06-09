@@ -127,7 +127,7 @@
 
 /* HOVER */
 .nav-item:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background-color: #1e5aa8;
     color: #ffffff;
     transform: translateX(2px);
 }
