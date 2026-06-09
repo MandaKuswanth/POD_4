@@ -335,7 +335,10 @@ exports.login = async (req, res) => {
             );
         }
 
-        const employee = await Employee.findOne({ email });
+        const employee = await Employee.findOne({
+            employeeCode: user.employeeId
+        });
+
 
         const passCheck = await user.isPasswordCorrect(password);
 
@@ -353,10 +356,8 @@ exports.login = async (req, res) => {
 
         const accessToken = user.generateAccessToken();
 
-        const userDecoded = jwt.verify(
-            accessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        );
+        const userDecoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
 
         if (user.mustResetPassword) {
             return res.status(200).json(
@@ -390,10 +391,12 @@ exports.login = async (req, res) => {
                     resetRequired: false,
                     token: accessToken,
                     user: {
+                        // _id: user._id,
                         employeeId: user.employeeId,
-                        name: employee?.name || "",
+                        // name: employee?.name || "",
                         email: userDecoded.email,
                         role: userDecoded.role,
+
                         status: user.status,
                         mustResetPassword: user.mustResetPassword
                     }
