@@ -209,23 +209,23 @@ export class PatientDialog implements OnInit {
         const formValue = this.form.getRawValue();
 
         const payload = {
-            name: formValue.name || '',
-            email: formValue.email || '',
-            phone: formValue.phone || '',
-            gender: formValue.gender || '',
+            name: formValue.name ?? '',
+            email: formValue.email ?? '',
+            phone: formValue.phone ?? '',
+            gender: formValue.gender ?? '',
             dob: formValue.dob
-                ? formatDate(
-                    new Date(formValue.dob),
-                    'yyyy-MM-dd',
-                    'en-US'
-                )
-                : '',
-            address: formValue.address || '',
+            ? formatDate(
+            new Date(formValue.dob),
+            'yyyy-MM-dd',
+            'en-US'
+            )
+            : '',
+            address: formValue.address ?? '',
             emergencyContact: {
-                name: formValue.emergencyName || '',
-                relation: formValue.emergencyRelation || '',
-                phone: formValue.emergencyPhone || ''
-            }
+            name: formValue.emergencyName ?? '',
+            relation: formValue.emergencyRelation ?? '',
+            phone: formValue.emergencyPhone ?? ''
+          }
         };
 
         if (this.data?.mode === 'edit') {

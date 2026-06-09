@@ -81,7 +81,11 @@ export class PatientList implements OnInit {
 
   get canAddOrUpdatePatient(): boolean {
     const role = (this.authService.getRole() ?? '').toUpperCase();
-    return ['ADMIN', 'RECEPTIONIST', 'TECHNICIAN'].includes(role);
+    return ['ADMIN', 'RECEPTIONIST'].includes(role);
+  }
+  get canViewPatient(): boolean {
+    const role = (this.authService.getRole() ?? '').toUpperCase();
+    return ['ADMIN', 'RECEPTIONIST','NURSE'].includes(role);
   }
 
   toggleRow(row: PatientRequest): void {

@@ -198,6 +198,7 @@
 
                     <button
                       mat-stroked-button
+                      *ngIf="canViewPatient"
                       (click)="viewPatient(row)">
 
                       <mat-icon>visibility</mat-icon>
