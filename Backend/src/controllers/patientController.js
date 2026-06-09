@@ -1,6 +1,7 @@
 const Patient = require("../models/Patient");
 const ApiResponse = require("../utils/ApiResponse");
 const ApiError = require("../utils/ApiError");
+const { cancelPatientAppointments } = require("../controllers/appointmentController");
 
 
 exports.createPatient = async (req, res) => {
