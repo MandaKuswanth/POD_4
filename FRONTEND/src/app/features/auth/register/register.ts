@@ -142,8 +142,13 @@ export class Register {
   private getRegistrationErrorMessage(error: any): string {
     const status = error?.status;
     const backendMessage = error?.error?.message || error?.message || '';
+    const validationErrors = error?.error?.errors;
 
-    if (status === 409 || status === 422) {
+    if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+      return validationErrors[0]?.msg || 'Invalid registration details';
+    }
+
+    if (status === 409) {
       return 'Employee already exists. Kindly login';
     }
 
@@ -187,11 +192,13 @@ export class Register {
 
   private buildPayload() {
     const raw = this.registerForm.getRawValue();
+    const qualification = this.parseList(raw.qualification);
+    const availabilitySlots = this.availabilitySlotsControl.value ?? [];
 
     return {
       ...raw,
-      qualification: this.parseList(raw.qualification),
-      availabilitySlots: this.availabilitySlotsControl.value ?? [],
+      qualification: qualification.length ? qualification : undefined,
+      availabilitySlots: availabilitySlots.length ? availabilitySlots : undefined,
       consultationFee: raw.consultationFee ? Number(raw.consultationFee) : undefined
     };
   }
