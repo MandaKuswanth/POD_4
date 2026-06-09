@@ -33,6 +33,10 @@ export class Sidebar {
     return ['ADMIN', 'RECEPTIONIST'].includes(this.role || '');
   }
 
+  isAdminOrReceptionistOrNurse(): boolean {
+    return ['ADMIN', 'RECEPTIONIST','NURSE'].includes(this.role || '');
+  }
+
   isAdminOrReceptionistOrDoctor(): boolean {
     return ['ADMIN', 'RECEPTIONIST', 'DOCTOR'].includes(this.role || '');
   }
