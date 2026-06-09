@@ -479,10 +479,7 @@ button[mat-icon-button] mat-icon {
     max-width: 100%;
 }
 
-.toolbar {
-    flex-wrap: wrap;
-    align-items: flex-start;
-}
+
 
 .toolbar button {
     height: 56px;
