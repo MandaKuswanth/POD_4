@@ -1,6 +1,7 @@
 const Patient = require("../models/Patient");
 const ApiResponse = require("../utils/ApiResponse");
 const ApiError = require("../utils/ApiError");
+const { cancelPatientAppointments } = require("../controllers/appointmentController");
 
 
 exports.createPatient = async (req, res) => {
@@ -153,45 +154,58 @@ exports.deletePatient = async (req, res) => {
             );
         }
 
+        const cancelledAppointments = await cancelPatientAppointments(
+            uhid,
+            "Patient has been removed from the hospital system"
+        );
+
         await Patient.deleteOne({ UHID: uhid });
 
         return res.status(200).json(
-            new ApiResponse(200, null, "Patient deleted successfully")
+            new ApiResponse(
+                200,
+                {
+                    uhid: patient.UHID,
+                    name: patient.name,
+                    cancelledAppointments
+                },
+                `Patient deleted successfully. ${cancelledAppointments} related appointment(s) cancelled.`
+            )
         );
 
     } catch (err) {
+        console.error(err);
         return res.status(500).json(
             new ApiError(500, err.message || "Internal Server Error")
         );
     }
 };
 
-
 exports.togglePatientStatus = async (req, res) => {
-  try {
-    const { uhid } = req.params;
+    try {
+        const { uhid } = req.params;
 
-    const patient = await Patient.findOne({ UHID: uhid });
+        const patient = await Patient.findOne({ UHID: uhid });
 
-    if (!patient) {
-      return res.status(404).json({
-        message: "Patient not found"
-      });
+        if (!patient) {
+            return res.status(404).json({
+                message: "Patient not found"
+            });
+        }
+
+        patient.status = !patient.status;
+
+        await patient.save();
+
+        res.status(200).json({
+            message: "Status updated successfully",
+            data: patient
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
     }
-
-    patient.status = !patient.status;
-
-    await patient.save();
-
-    res.status(200).json({
-      message: "Status updated successfully",
-      data: patient
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Internal server error"
-    });
-  }
 };

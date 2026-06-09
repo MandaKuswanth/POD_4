@@ -57,6 +57,8 @@ const cancelDoctorAppointments = async (doctorEmployeeId, reason) => {
 
     return cancelledCount;
 };
+
+
 exports.adminAddEmployee = async (req, res) => {
     try {
         const {

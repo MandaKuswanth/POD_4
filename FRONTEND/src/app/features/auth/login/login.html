@@ -31,7 +31,7 @@
                 </mat-error>
                 }
 
-                @if (email.touched && email.hasError('email')) {
+                @if (email.touched &&(email.hasError('email') || email.hasError('pattern'))) {
                 <mat-error>
                     Enter a valid email address
                 </mat-error>
