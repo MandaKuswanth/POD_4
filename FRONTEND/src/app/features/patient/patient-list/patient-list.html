@@ -1,1 +1,238 @@
-<p>patient-list works!</p>
+<app-navbar></app-navbar>
+
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="content">
+
+    <div class="patient-page">
+
+      <div class="page-header">
+        <div>
+          <h2>Patient List</h2>
+        </div>
+
+        <button
+          *ngIf="canAddOrUpdatePatient"
+          mat-raised-button
+          color="primary"
+          (click)="openAddDialog()">
+
+          <mat-icon>add</mat-icon>
+          Add Patient
+        </button>
+      </div>
+
+      <div class="filter-card">
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            (input)="applyFilters()" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Gender</mat-label>
+          <mat-select
+            [(value)]="selectedGender"
+            (selectionChange)="applyFilters()">
+
+            <mat-option value="ALL">All</mat-option>
+            <mat-option value="male">Male</mat-option>
+            <mat-option value="female">Female</mat-option>
+
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select
+            [(value)]="selectedStatus"
+            (selectionChange)="applyFilters()">
+
+            <mat-option value="ALL">All</mat-option>
+            <mat-option value="ACTIVE">Active</mat-option>
+            <mat-option value="INACTIVE">Inactive</mat-option>
+
+          </mat-select>
+        </mat-form-field>
+
+        <button
+          mat-stroked-button
+          color="warn"
+          (click)="clearFilters()">
+
+          <mat-icon>refresh</mat-icon>
+          Clear
+        </button>
+
+      </div>
+
+      <div class="table-card">
+
+        <div class="table-header">
+          <h3>Patients</h3>
+          <span>{{ dataSource.data.length }} records</span>
+        </div>
+
+        <div class="table-scroll">
+
+          <table
+            mat-table
+            [dataSource]="dataSource"
+            multiTemplateDataRows>
+
+            <ng-container matColumnDef="UHID">
+              <th mat-header-cell *matHeaderCellDef>UHID</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.UHID }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="patient-name">
+                  <div class="avatar">
+                    {{ row.name?.charAt(0) }}
+                  </div>
+                  {{ row.name }}
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.email }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="phone">
+              <th mat-header-cell *matHeaderCellDef>Phone</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.phone }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="gender">
+              <th mat-header-cell *matHeaderCellDef>Gender</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="gender-badge">
+                  {{ row.gender }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dob">
+              <th mat-header-cell *matHeaderCellDef>DOB</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.dob | date:'dd-MM-yyyy' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let row">
+                <span
+                  class="status-badge"
+                  [class.active]="row.status"
+                  [class.inactive]="!row.status">
+
+                  {{ row.status ? 'Active' : 'Inactive' }}
+
+                </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              class="patient-row"
+              (click)="toggleRow(row)">
+            </tr>
+
+            <ng-container matColumnDef="expandedDetail">
+              <td
+                mat-cell
+                *matCellDef="let row"
+                [attr.colspan]="displayedColumns.length">
+
+                <div
+                  class="patient-action-panel"
+                  *ngIf="expandedPatient === row">
+
+                  <div class="patient-action-info">
+                    <strong>{{ row.name }}</strong>
+                    <span>{{ row.UHID }}</span>
+                  </div>
+
+                  <div class="patient-action-buttons">
+
+                    <button
+                      mat-stroked-button
+                      class="status-btn"
+                      [ngClass]="row.status ? 'deactivate-btn' : 'activate-btn'"
+                      (click)="toggleStatus(row); $event.stopPropagation()">
+
+                      {{ row.status ? 'Deactivate' : 'Activate' }}
+
+                    </button>
+
+                    <button
+                      mat-stroked-button
+                      (click)="viewPatient(row); $event.stopPropagation()">
+
+                      <mat-icon>visibility</mat-icon>
+                      View
+
+                    </button>
+
+                    <button
+                      mat-stroked-button
+                      *ngIf="canAddOrUpdatePatient"
+                      (click)="editPatient(row); $event.stopPropagation()">
+
+                      <mat-icon>edit</mat-icon>
+                      Edit
+
+                    </button>
+
+                    <button
+                      mat-stroked-button
+                      *ngIf="canAddOrUpdatePatient"
+                      (click)="deletePatient(row); $event.stopPropagation()">
+
+                      <mat-icon>delete</mat-icon>
+                      Delete
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </td>
+            </ng-container>
+
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['expandedDetail']"
+              class="detail-row"
+              [class.hidden]="expandedPatient !== row">
+            </tr>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>

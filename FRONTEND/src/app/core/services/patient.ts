@@ -3,28 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface PatientRequest {
-
-    name: string;
-
-    phone: string;
-
-    email: string;
-
-    gender: string;
-
-    dob: string;
-
-    address?: string;
-
-    emergencyContact?: {
-
-        name?: string;
-
-        relation?: string;
-
-        phone?: string;
-    };
-
+    UHID?: string;
+  name: string;
+  email: string;
+  phone: string;
+  gender: string;
+  dob: string;
+  address: string;
+  status?: boolean;
+  emergencyContact?: {
+    name?: string;
+    relation?: string;
+    phone?: string;
+  };
 }
 
 @Injectable({
@@ -35,22 +26,42 @@ export class PatientService {
     readonly http = inject(HttpClient);
 
     readonly baseUrl =
-        'http://localhost:5000/api';
+        'http://localhost:5000/api/patients';
 
     createPatient(
         data: PatientRequest
     ): Observable<any> {
 
         return this.http.post(
-            `${this.baseUrl}/patients`,
+            `${this.baseUrl}`,
             data
+        );
+    }
+    toggleStatus(
+        uhid: string
+        ): Observable<any> {
+
+        return this.http.patch(
+        `${this.baseUrl}/${uhid}/status`,
+        {}
+    );
+    }
+
+    updatePatient(
+        uhid: string,
+        data: any
+        ): Observable<any> {
+
+        return this.http.put(
+        `${this.baseUrl}/${uhid}`,
+        data
         );
     }
 
     getPatients(): Observable<any> {
 
         return this.http.get(
-            `${this.baseUrl}/patients`
+            `${this.baseUrl}`
         );
     }
 
@@ -59,7 +70,7 @@ export class PatientService {
     ): Observable<any> {
 
         return this.http.delete(
-            `${this.baseUrl}/patients/${uhid}`
+            `${this.baseUrl}/${uhid}`
         );
     }
 
