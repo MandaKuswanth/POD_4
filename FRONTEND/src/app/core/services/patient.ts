@@ -26,7 +26,7 @@ export class PatientService {
     readonly http = inject(HttpClient);
 
     readonly baseUrl =
-        'http://localhost:5000/api/patients';
+        'http://localhost:3000/api/patients';
 
     createPatient(
         data: PatientRequest

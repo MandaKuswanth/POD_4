@@ -78,7 +78,7 @@
 
         <div class="table-header">
           <h3>Patients</h3>
-          <span>{{ dataSource?.data?.length || 0 }} records</span>
+          <span>{{ dataSource.data.length || 0 }} records</span>
         </div>
 
         <div class="table-scroll">
@@ -162,10 +162,13 @@
 
             <!-- MAIN ROW -->
             <tr
-              mat-row
-              *matRowDef="let row; columns: displayedColumns"
-              class="patient-row"
-              (click)="onRowClick(row, $event)">
+               mat-row
+               *matRowDef="let row; columns: displayedColumns"
+                class="patient-row"
+                tabindex="0"
+                (click)="onRowClick(row, $event)"
+                (keydown.enter)="onRowClick(row, $event)"
+                (keydown.space)="onRowClick(row, $event)">
             </tr>
 
             <!-- EXPANDED DETAIL -->

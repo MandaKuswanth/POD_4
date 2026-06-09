@@ -230,31 +230,12 @@ export class PatientDialog implements OnInit {
 
         if (this.data?.mode === 'edit') {
 
-            this.patientService
-                .updatePatient(
-                    this.data.patient!.UHID!,
-                    payload
-                )
-                .subscribe({
+            this.patientService.updatePatient(
+              this.data.patient?.UHID,
+              payload
+            );
 
-                    next: () => {
-                        this.loading = false;
-                        this.toastr.success(
-                            'Patient updated successfully'
-                        );
-                        this.dialogRef.close(true);
-                    },
-
-                    error: (err) => {
-                        this.loading = false;
-                        this.toastr.error(
-                            err?.error?.message ||
-                            'Failed to update patient'
-                        );
-                    }
-                });
-
-            return;
+                
         }
 
         this.patientService
