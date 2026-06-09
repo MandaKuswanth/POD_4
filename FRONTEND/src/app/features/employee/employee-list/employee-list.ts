@@ -63,7 +63,6 @@ export class EmployeeList implements OnInit {
 
   activeView: 'all' | 'active' | 'pending' = 'all';
 
-  expandedEmployee: any = null;
 
   displayedColumns: string[] = [
     'employeeCode',
@@ -162,12 +161,7 @@ export class EmployeeList implements OnInit {
     this.cdr.markForCheck();
   }
 
-  toggleRow(employee: any): void {
-    this.expandedEmployee =
-      this.expandedEmployee === employee ? null : employee;
 
-    this.cdr.markForCheck();
-  }
 
   loadEmployees(): void {
     this.employeeService.getEmployees().subscribe({
