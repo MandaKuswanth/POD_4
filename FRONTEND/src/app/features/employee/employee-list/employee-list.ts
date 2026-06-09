@@ -4,12 +4,13 @@ import {
   inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
+import { Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -53,7 +54,7 @@ export class EmployeeList implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
-
+  private readonly router = inject(Router);
   employees: any[] = [];
   expandedEmployee: any = null;
 
@@ -242,6 +243,21 @@ export class EmployeeList implements OnInit {
 
     this.employeeService.deleteEmployee(employee.employeeCode).subscribe({
       next: () => {
+        const currentUser = JSON.parse(
+          localStorage.getItem('user') || '{}'
+        );
+
+        const isDeletingOwnAccount =
+          currentUser?.employeeId === employee.employeeCode;
+
+        if (isDeletingOwnAccount) {
+          this.toastr.success('Your account has been deleted. Please login again.');
+
+          localStorage.clear();
+          this.router.navigate(['/login']);
+          return;
+        }
+
         this.toastr.success('Employee deleted successfully');
         this.expandedEmployee = null;
         this.loadEmployees();

@@ -50,7 +50,7 @@ export class AppointmentDialog implements OnInit {
   patients: any[] = [];
   availableSlots: string[] = [];
 
-  minDate: Date = new Date();
+  minDate: Date = new Date(new Date().setDate(new Date().getDate() + 1));
 
   loading = false;
   patientsLoading = false;
