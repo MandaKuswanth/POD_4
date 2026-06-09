@@ -29,7 +29,6 @@ import {
   EMPLOYEE_ROLES,
   NAME_PATTERN,
   PHONE_PATTERN,
-  SLOT_PATTERN,
   getConsultationFeeValidators,
   getMedicalRegistrationValidators,
   getQualificationValidators,
