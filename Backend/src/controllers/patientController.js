@@ -2,6 +2,7 @@ const Patient = require("../models/Patient");
 const ApiResponse = require("../utils/ApiResponse");
 const ApiError = require("../utils/ApiError");
 const { cancelPatientAppointments } = require("../controllers/appointmentController");
+const sendEmail = require("../utils/sendEmail");
 
 
 exports.createPatient = async (req, res) => {
@@ -42,6 +43,24 @@ exports.createPatient = async (req, res) => {
             emergencyContact
         });
 
+        await sendEmail({
+            to: patient.email,
+            subject: "Welcome to HMS",
+            html: `
+                <h2>Patient Registration Successful</h2>
+
+                <p>Hello ${patient.name},</p>
+
+                <p>Your patient profile has been successfully registered in HMS.</p>
+
+                <p><strong>UHID:</strong> ${patient.UHID}</p>
+
+                <p>You can use this UHID for future appointments and hospital visits.</p>
+
+                <p>Thank you,<br/>HMS Team</p>
+            `
+        });
+
         return res.status(201).json(
             new ApiResponse(201, patient, "Patient created successfully")
         );
@@ -52,6 +71,7 @@ exports.createPatient = async (req, res) => {
         );
     }
 };
+
 
 exports.getPatients = async (req, res) => {
     try {
@@ -159,6 +179,24 @@ exports.deletePatient = async (req, res) => {
             "Patient has been removed from the hospital system"
         );
 
+        await sendEmail({
+            to: patient.email,
+            subject: "Patient Profile Removed",
+            html: `
+                <h2>Patient Profile Removed</h2>
+
+                <p>Hello ${patient.name},</p>
+
+                <p>Your patient profile has been removed from HMS.</p>
+
+                <p><strong>UHID:</strong> ${patient.UHID}</p>
+
+                <p>If you believe this was done in error, please contact hospital administration.</p>
+
+                <p>Thank you,<br/>HMS Team</p>
+            `
+        });
+
         await Patient.deleteOne({ UHID: uhid });
 
         return res.status(200).json(
@@ -181,6 +219,7 @@ exports.deletePatient = async (req, res) => {
     }
 };
 
+
 exports.togglePatientStatus = async (req, res) => {
     try {
         const { uhid } = req.params;
@@ -196,6 +235,31 @@ exports.togglePatientStatus = async (req, res) => {
         patient.status = !patient.status;
 
         await patient.save();
+
+        await sendEmail({
+            to: patient.email,
+            subject: "HMS Patient Status Updated",
+            html: `
+                <h2>Patient Status Updated</h2>
+
+                <p>Hello ${patient.name},</p>
+
+                <p>Your patient profile status has been updated.</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    ${patient.status ? "ACTIVE" : "INACTIVE"}
+                </p>
+
+                ${
+                    patient.status
+                        ? `<p>Your patient profile is now active.</p>`
+                        : `<p>Your patient profile has been deactivated. Please contact hospital administration for more information.</p>`
+                }
+
+                <p>Thank you,<br/>HMS Team</p>
+            `
+        });
 
         res.status(200).json({
             message: "Status updated successfully",

@@ -11,6 +11,7 @@ import { Sidebar } from '../../shared/components/sidebar/sidebar';
 import { AuthService } from '../../core/services/auth';
 import { EmployeeService } from '../../core/services/employee';
 import { AppointmentService } from '../../core/services/appointment';
+import { PatientService } from '../../core/services/patient';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +30,7 @@ export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
   private readonly appointmentService = inject(AppointmentService);
+  private readonly patientService = inject(PatientService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 
@@ -40,7 +42,7 @@ export class Dashboard implements OnInit {
   totalEmployees = 0;
   activeEmployees = 0;
   pendingEmployees = 0;
-
+  totalPatients=0;
   appointmentsCount = 0;
 
   ngOnInit(): void {
@@ -59,6 +61,7 @@ export class Dashboard implements OnInit {
     if (this.canViewAppointments()) {
       this.loadAppointmentsCount();
     }
+    this.loadPatientsCount();
   }
 
   isAdminOrTechnician(): boolean {
@@ -184,4 +187,32 @@ export class Dashboard implements OnInit {
   goToAppointments(): void {
     this.router.navigate(['/appointments']);
   }
+  private loadPatientsCount(): void {
+
+  this.patientService.getPatients().subscribe({
+
+    next: (response: any) => {
+
+      console.log('PATIENT RESPONSE:', response);
+
+      this.totalPatients =
+        response?.data?.count ||
+        response?.data?.patients?.length ||
+        0;
+
+      this.cdr.detectChanges();
+    },
+
+    error: (error) => {
+
+      console.error('PATIENT COUNT ERROR:', error);
+
+      this.totalPatients = 0;
+
+      this.cdr.detectChanges();
+    }
+
+  });
+
+}
 }

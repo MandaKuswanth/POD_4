@@ -47,13 +47,13 @@
 
       }
 
-      @if (role === 'NURSE') {
+      @if (role === 'NURSE' || role === 'RECEPTIONIST') {
 
       <mat-card class="overview-card clickable-card" tabindex="0" (keydown.enter)="$event.preventDefault()"
         (keydown.space)="$event.preventDefault()">
         <mat-icon>groups</mat-icon>
-        <h3>Assigned Patients</h3>
-        <p class="count">0</p>
+        <h3>Total Patients</h3>
+        <p class="count">{{ totalPatients }}</p>
       </mat-card>
 
       }
@@ -66,15 +66,8 @@
         <h3>Appointments</h3>
         <p class="count">{{ appointmentsCount }}</p>
       </mat-card>
-
-      <mat-card class="overview-card clickable-card" tabindex="0" (keydown.enter)="$event.preventDefault()"
-        (keydown.space)="$event.preventDefault()">
-        <mat-icon>person_add</mat-icon>
-        <h3>Registrations</h3>
-        <p class="count">0</p>
-      </mat-card>
-
-      }
+    }
+      
 
     </section>
   </main>
