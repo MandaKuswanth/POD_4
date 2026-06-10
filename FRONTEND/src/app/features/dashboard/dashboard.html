@@ -42,7 +42,7 @@
         (keydown.enter)="goToAppointments()" (keydown.space)="goToAppointments()">
         <mat-icon>event</mat-icon>
         <h3>My Appointments</h3>
-        <p class="count">{{ doctorAppointmentsCount }}</p>
+        <p class="count">{{ appointmentsCount }}</p>
       </mat-card>
 
       }
@@ -64,7 +64,7 @@
         (keydown.enter)="goToAppointments()" (keydown.space)="goToAppointments()">
         <mat-icon>event_available</mat-icon>
         <h3>Appointments</h3>
-        <p class="count">0</p>
+        <p class="count">{{ appointmentsCount }}</p>
       </mat-card>
 
       <mat-card class="overview-card clickable-card" tabindex="0" (keydown.enter)="$event.preventDefault()"

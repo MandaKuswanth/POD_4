@@ -41,7 +41,7 @@ export class Dashboard implements OnInit {
   activeEmployees = 0;
   pendingEmployees = 0;
 
-  doctorAppointmentsCount = 0;
+  appointmentsCount = 0;
 
   ngOnInit(): void {
     this.role = this.authService.getRole()?.toUpperCase() || null;
@@ -56,8 +56,8 @@ export class Dashboard implements OnInit {
       this.loadEmployeesCount();
     }
 
-    if (this.role === 'DOCTOR') {
-      this.loadDoctorAppointmentsCount();
+    if (this.canViewAppointments()) {
+      this.loadAppointmentsCount();
     }
   }
 
@@ -87,8 +87,8 @@ export class Dashboard implements OnInit {
           this.loadEmployeesCount();
         }
 
-        if (this.role === 'DOCTOR') {
-          this.loadDoctorAppointmentsCount();
+        if (this.canViewAppointments()) {
+          this.loadAppointmentsCount();
         }
 
         this.cdr.detectChanges();
@@ -140,10 +140,14 @@ export class Dashboard implements OnInit {
     });
   }
 
-  private loadDoctorAppointmentsCount(): void {
+  private canViewAppointments(): boolean {
+    return ['ADMIN', 'RECEPTIONIST', 'DOCTOR'].includes(this.role || '');
+  }
+
+  private loadAppointmentsCount(): void {
     this.appointmentService.getAppointments().subscribe({
       next: (response: any) => {
-        console.log('DOCTOR APPOINTMENTS RESPONSE:', response);
+        console.log('DASHBOARD APPOINTMENTS RESPONSE:', response);
 
         let appointments: any[] = [];
 
@@ -153,14 +157,14 @@ export class Dashboard implements OnInit {
           appointments = response;
         }
 
-        this.doctorAppointmentsCount = appointments.length;
+        this.appointmentsCount = appointments.length;
 
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('DOCTOR APPOINTMENT COUNT ERROR:', error);
+        console.error('DASHBOARD APPOINTMENT COUNT ERROR:', error);
 
-        this.doctorAppointmentsCount = 0;
+        this.appointmentsCount = 0;
 
         this.cdr.detectChanges();
       }
