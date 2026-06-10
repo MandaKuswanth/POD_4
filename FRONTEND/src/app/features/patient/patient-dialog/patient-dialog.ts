@@ -200,7 +200,9 @@ export class PatientDialog implements OnInit {
 
         if (this.form.invalid) {
             this.form.markAllAsTouched();
-            this.toastr.error('Please fill all required fields correctly');
+            this.toastr.error(
+                'Please fill all required fields correctly'
+            );
             return;
         }
 
@@ -214,44 +216,71 @@ export class PatientDialog implements OnInit {
             phone: formValue.phone ?? '',
             gender: formValue.gender ?? '',
             dob: formValue.dob
-            ? formatDate(
-            new Date(formValue.dob),
-            'yyyy-MM-dd',
-            'en-US'
-            )
-            : '',
+                ? formatDate(
+                    new Date(formValue.dob),
+                    'yyyy-MM-dd',
+                    'en-US'
+                )
+                : '',
             address: formValue.address ?? '',
             emergencyContact: {
-            name: formValue.emergencyName ?? '',
-            relation: formValue.emergencyRelation ?? '',
-            phone: formValue.emergencyPhone ?? ''
-          }
+                name: formValue.emergencyName ?? '',
+                relation: formValue.emergencyRelation ?? '',
+                phone: formValue.emergencyPhone ?? ''
+            }
         };
 
-        if (this.data?.mode === 'edit') {
+        // EDIT MODE
+        if (this.data.mode === 'edit') {
 
-            this.patientService.updatePatient(
-              this.data.patient?.UHID,
-              payload
-            );
+            this.patientService
+                .updatePatient(
+                    this.data.patient.UHID,
+                    payload
+                )
+                .subscribe({
 
-                
+                    next: () => {
+                        this.loading = false;
+
+                        this.toastr.success(
+                            'Patient updated successfully'
+                        );
+
+                        this.dialogRef.close(true);
+                    },
+
+                    error: (err) => {
+                        this.loading = false;
+
+                        this.toastr.error(
+                            err?.error?.message ||
+                            'Failed to update patient'
+                        );
+                    }
+                });
+
+            return;
         }
 
+        // ADD MODE
         this.patientService
             .createPatient(payload)
             .subscribe({
 
                 next: () => {
                     this.loading = false;
+
                     this.toastr.success(
                         'Patient created successfully'
                     );
+
                     this.dialogRef.close(true);
                 },
 
                 error: (err) => {
                     this.loading = false;
+
                     this.toastr.error(
                         err?.error?.message ||
                         'Failed to create patient'

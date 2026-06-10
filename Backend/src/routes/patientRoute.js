@@ -49,7 +49,7 @@ router.put(
 router.delete(
     "/:uhid",
     authMiddleware,
-    allowRoles("ADMIN"),
+    allowRoles("ADMIN","RECEPTIONIST"),
     deletePatient
 );
 
